@@ -21,7 +21,7 @@ First, import `reltools`.
 
 >>> from reltools import relate_one_to_many
 
-Here is a sample for *one-to-many* relations.
+Here, input data are sorted in 1st and 2nd keys.
 
 >>> lhs = [
 ...     (1, 'a', 's'),
@@ -33,9 +33,27 @@ Here is a sample for *one-to-many* relations.
 ...     (1, 'b', 'w'),
 ...     (3, 'b', 'x'),
 ... ]
+
+One-To-Many
+***********
+
+Here is a sample for *one-to-many* relations.
+
 >>> one_to_many_related = relate_one_to_many(lhs, rhs)
 >>> for left, right in one_to_many_related:
 ...     left, list(right)
 ((1, 'a', 's'), [(1, 'a', 'v'), (1, 'b', 'w')])
+((2, 'a', 't'), [])
+((3, 'b', 'u'), [(3, 'b', 'x')])
+
+You can use custom keys for all API functions.
+
+>>> import operator
+>>> custom_key = operator.itemgetter(0, 1)
+>>> one_to_many_related = relate_one_to_many(
+...     lhs, rhs, lhs_key=custom_key, rhs_key=custom_key)
+>>> for left, right in one_to_many_related:
+...     left, list(right)
+((1, 'a', 's'), [(1, 'a', 'v')])
 ((2, 'a', 't'), [])
 ((3, 'b', 'u'), [(3, 'b', 'x')])
