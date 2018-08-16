@@ -1,5 +1,6 @@
 [packages]
 codecov = "*"
+more-itertools = "*"
 
 [dev-packages]
 pytest = '*'
