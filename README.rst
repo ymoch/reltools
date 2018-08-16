@@ -19,23 +19,23 @@ Samples
 
 First, import `reltools`.
 
-    >>> from reltools import relate_one_to_many
+>>> from reltools import relate_one_to_many
 
-Here is a sample code for one-to-many relations.
+Here is a sample for *one-to-many* relations.
 
-    >>> lhs = [
-    ...     (1, 'a', 's'),
-    ...     (2, 'a', 't'),
-    ...     (3, 'b', 'u'),
-    ... ]
-    >>> rhs = [
-    ...     (1, 'a', 'v'),
-    ...     (1, 'b', 'w'),
-    ...     (3, 'b', 'x'),
-    ... ]
-    >>> one_to_many_related = relate_one_to_many(lhs, rhs)
-    >>> for left, right in one_to_many_related:
-    ...     left, list(right)
-    ((1, 'a', 's'), [(1, 'a', 'v'), (1, 'b', 'w')])
-    ((2, 'a', 't'), [])
-    ((3, 'b', 'u'), [(3, 'b', 'x')])
+>>> lhs = [
+...     (1, 'a', 's'),
+...     (2, 'a', 't'),
+...     (3, 'b', 'u'),
+... ]
+>>> rhs = [
+...     (1, 'a', 'v'),
+...     (1, 'b', 'w'),
+...     (3, 'b', 'x'),
+... ]
+>>> one_to_many_related = relate_one_to_many(lhs, rhs)
+>>> for left, right in one_to_many_related:
+...     left, list(right)
+((1, 'a', 's'), [(1, 'a', 'v'), (1, 'b', 'w')])
+((2, 'a', 't'), [])
+((3, 'b', 'u'), [(3, 'b', 'x')])
