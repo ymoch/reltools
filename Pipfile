@@ -1,10 +1,10 @@
 [packages]
-codecov = "*"
 more-itertools = "*"
 
 [dev-packages]
 pytest = '*'
+pytest-runner = "*"
 pytest-cov = "*"
 "pytest-pep8" = "*"
-pytest-runner = "*"
 pytest-flakes = "*"
+codecov = "*"

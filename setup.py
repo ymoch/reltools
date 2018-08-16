@@ -32,10 +32,13 @@ setuptools.setup(
     author_email=AUTHOR_EMAIL,
     url=URL,
     py_modules=[
-        'reltools'
+        'reltools',
+    ],
+    install_requires=[
+        'more-itertools',
     ],
     setup_requires=[
-        'pytest-runner'
+        'pytest-runner',
     ],
     tests_require=[
         'pytest',
