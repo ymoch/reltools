@@ -7,3 +7,4 @@ pytest = '*'
 pytest-cov = "*"
 "pytest-pep8" = "*"
 pytest-runner = "*"
+pytest-flakes = "*"
