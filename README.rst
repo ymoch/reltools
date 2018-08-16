@@ -12,7 +12,7 @@ This relates two data (sorted by certain keys) like SQL joining.
 Inspired by `itertools.groupby <https://docs.python.org/3.6/library/itertools.html#itertools.groupby>`_,
 as long as input data are sorted, almost all processes are evaluated lazily,
 which results in the reduction of memory usage.
-This feature is for the big data joining without SQL engine.
+This feature is for the big data joining without any SQL engines.
 
 Samples
 -------
