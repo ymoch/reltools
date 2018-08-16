@@ -1,2 +1,2 @@
-# reltools
+# Reltools
 Relation tools for Python.
