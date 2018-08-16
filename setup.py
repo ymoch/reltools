@@ -31,9 +31,18 @@ setuptools.setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     url=URL,
-    py_modules=['reltools'],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-cov', 'pytest-pep8'],
+    py_modules=[
+        'reltools'
+    ],
+    setup_requires=[
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+        'pytest-pep8',
+        'pytest-flakes',
+    ],
     classifiers=[
         'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
