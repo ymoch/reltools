@@ -8,6 +8,6 @@ install:
 script:
   - pipenv run py.test
 after_success:
-  - coveralls
+  - codecov
 notifications:
   - email: false

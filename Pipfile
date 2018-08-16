@@ -1,8 +1,8 @@
 [packages]
+codecov = "*"
 
 [dev-packages]
 pytest = '*'
 pytest-cov = "*"
 "pytest-pep8" = "*"
 pytest-runner = "*"
-coveralls = "*"
