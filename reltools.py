@@ -18,6 +18,8 @@ T = TypeVar('T')
 U = TypeVar('U')
 V = TypeVar('V')
 
+DEFAULT_KEY = itemgetter(0)
+
 
 class UnidirectionalFinder(Generic[V, K]):
     """
@@ -67,9 +69,12 @@ class UnidirectionalFinder(Generic[V, K]):
     __EMPTY_LIST = []
 
     def __init__(
-            self, iterable: Iterable[V], key: Optional[Callable[[V], K]]=None):
+        self,
+        iterable: Iterable[V],
+        key: Callable[[V], K]=DEFAULT_KEY,
+    ):
         """Initialize"""
-        self._groups = groupby(iterable, key or itemgetter(0))
+        self._groups = groupby(iterable, key)
 
     def find(self, key: K) -> Iterator[V]:
         """Find items that have the given key."""
@@ -93,8 +98,10 @@ class UnidirectionalFinder(Generic[V, K]):
 
 
 def relate_one_to_many(
-        lhs: Iterable[T],
-        rhs: Iterable[U],
+    lhs: Iterable[T],
+    rhs: Iterable[U],
+    lhs_key: Callable[[T], K]=DEFAULT_KEY,
+    rhs_key: Callable[[T], K]=DEFAULT_KEY,
 ) -> Iterator[Tuple[T, Iterator[U]]]:
     """
     Relates `rhs` items to each `lhs` items.
@@ -103,11 +110,21 @@ def relate_one_to_many(
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c')]
     >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v')]
     >>> relations = relate_one_to_many(lhs, rhs)
-    >>> for relation in relations:
-    ...     relation[0], list(relation[1])
+    >>> for left, right in relations:
+    ...     left, list(right)
     ((0, 'a'), [])
     ((1, 'b'), [(1, 's')])
     ((2, 'c'), [(2, 't'), (2, 'u')])
+
+    Given a custom key, then relates with it.
+    >>> relations = relate_one_to_many(
+    ...     lhs, rhs, lhs_key=lambda l: l[0] * 2,
+    ...     rhs_key=lambda r: r[0] - 1)
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((0, 'a'), [(1, 's')])
+    ((1, 'b'), [(3, 'v')])
+    ((2, 'c'), [])
 
     Seminormal case:
     >>> lhs = []
@@ -118,8 +135,5 @@ def relate_one_to_many(
         ...
     StopIteration
     """
-    lhs_key = itemgetter(0)
-    rhs_key = itemgetter(0)
-
     rhs_finder = UnidirectionalFinder(rhs, rhs_key)
     return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
