@@ -2,9 +2,7 @@
 
 from itertools import dropwhile, groupby
 from operator import itemgetter
-from typing import (
-    Callable, Generic, Iterable, Iterator, Optional, Tuple, TypeVar
-)
+from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
 
 from more_itertools import peekable
 
