@@ -33,7 +33,7 @@ Samples
 One-To-Many
 ***********
 
-Here is a sample for *one-to-many* relations using `relate_one_to_many`.
+Here is a sample for *one-to-many* relations using ``relate_one_to_many``.
 Input collections are sorted in 1st and 2nd keys.
 
 >>> lhs = [
@@ -70,10 +70,10 @@ You can use custom keys for all API functions.
 Left Outer Join
 ***************
 
-Here is a sample for SQL left outer joining using `left_join`.
+Here is a sample for SQL left outer joining using ``left_join``.
 While SQL left joining returns all the combinations,
 this returns the pair of items.
-Note that the `right` can empty, like SQL left joining.
+Note that the ``right`` can empty, like SQL left joining.
 
 >>> from reltools import left_join
 >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
@@ -88,8 +88,9 @@ Note that the `right` can empty, like SQL left joining.
 Inner Join
 **********
 
-Here is a sample for SQL inner joining using `inner_join`.
-In contrast to `left_join`, `right` cannot be empty, like SQL inner joining.
+Here is a sample for SQL inner joining using ``inner_join``.
+In contrast to ``left_join``, ``right`` cannot be empty,
+like SQL inner joining.
 
 >>> from reltools import inner_join
 >>> relations = inner_join(lhs, rhs)
