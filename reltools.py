@@ -104,6 +104,11 @@ def relate_one_to_many(
     """
     Relates `rhs` items to each `lhs` items.
 
+    Note that:
+    - `Key` must be 'comparable' (supports `__lt__()` and  `__gt__()`).
+    - `lhs` must be sorted by keys that `lhs_key` provides.
+    - `rhs` must be sorted by keys that `rhs_key` provides.
+
     Here are some normal cases.
     These collections are sorted by the first items.
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c')]
