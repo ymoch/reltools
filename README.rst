@@ -4,7 +4,11 @@ reltools
 .. image:: https://travis-ci.org/ymoch/reltools.svg?branch=master
     :target: https://travis-ci.org/ymoch/reltools
 .. image:: https://codecov.io/gh/ymoch/reltools/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/ymoch/reltools
+    :target: https://codecov.io/gh/ymoch/reltools
+.. image:: https://badge.fury.io/py/reltools.svg
+    :target: https://badge.fury.io/py/reltools
+.. image:: https://img.shields.io/badge/python-3.5+-blue.svg
+    :target: https://www.python.org/
 
 Relation tools for Python.
 This relates two data (sorted by certain keys) like SQL joining.
@@ -17,11 +21,11 @@ This feature is for the big data joining without any SQL engines.
 Installation
 ------------
 
-Choose one from the following.
+Install with `pip <https://pypi.org/project/pip/>`_.
 
-- Install with `pip <https://pypi.org/project/pip/>`_.
-    - Run :code:`pip install reltools`.
-- Put `reltools.py` into your project.
+.. code-block:: sh
+
+   pip install reltools
 
 Samples
 -------
