@@ -153,6 +153,32 @@ def relate_one_to_many(
     >>> for left, right in relations:
     ...     left, list(right)
     ((1, 'a'), [])
+
+    When given unordered `lhs`, then skips relationing
+    on reverse-ordering segments.
+    >>> lhs = [(0, 'a'), (2, 'b'), (1, 'c'), (4, 'd'), (3, 'e')]
+    >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v'), (4, 'w')]
+    >>> relations = relate_one_to_many(lhs, rhs)
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((0, 'a'), [])
+    ((2, 'b'), [(2, 't'), (2, 'u')])
+    ((1, 'c'), [])
+    ((4, 'd'), [(4, 'w')])
+    ((3, 'e'), [])
+
+    When given unordered `rhs, then skips relationing
+    on reverse-ordering segments.
+    >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
+    >>> rhs = [(1, 's'), (3, 't'), (3, 'u'), (2, 'v'), (4, 'w')]
+    >>> relations = relate_one_to_many(lhs, rhs)
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((0, 'a'), [])
+    ((1, 'b'), [(1, 's')])
+    ((2, 'c'), [])
+    ((3, 'd'), [(3, 't'), (3, 'u')])
+    ((4, 'e'), [(4, 'w')])
     """
     rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
     return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
