@@ -33,10 +33,16 @@ class _UnidirectionalFinder(Generic[Value, Key]):
     Collections are sorted by the first items.
     >>> iterable = [(0, 'a'), (1, 'b'), (1, 'c'), (2, 'd')]
     >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
+    >>> finder.is_exhausted
+    False
+    >>> finder.current_key()
+    0
 
     When given a waiting key, then finds items and groups them by the key.
     >>> list(finder.find(1))
     [(1, 'b'), (1, 'c')]
+    >>> finder.current_key()
+    2
 
     When given passed keys, then cannot find items.
     >>> list(finder.find(1))
@@ -45,28 +51,42 @@ class _UnidirectionalFinder(Generic[Value, Key]):
     []
 
     When given too large keys, then cannot find items.
+    Once given a too large key, the finder is exhausted.
     >>> list(finder.find(3))
     []
+    >>> finder.is_exhausted
+    True
+    >>> finder.current_key()
+    Traceback (most recent call last):
+        ...
+    StopIteration
 
-    Once given a too large key,
-    when given an existing key, then cannot find items.
+    When exhausted and given an existing key, then cannot find items.
     >>> list(finder.find(2))
     []
 
     Here are some seminormal cases.
     When given an empty collection, then cannot find any items.
     >>> finder = _UnidirectionalFinder([], itemgetter(0))
+    >>> finder.is_exhausted
+    True
     >>> list(finder.find(0))
     []
+    >>> finder.current_key()
+    Traceback (most recent call last):
+        ...
+    StopIteration
 
     When given a not sorted `iterable`,
-    then skips the reverse-ordering segments.
+    then stops finding at reverse-ordering segments.
     >>> iterable = [(0, 'a'), (2, 'b'), (1, 'c'), (3, 'd')]
     >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
-    >>> list(finder.find(2))
-    [(2, 'b')]
     >>> list(finder.find(1))
     []
+    >>> finder.current_key()
+    2
+    >>> list(finder.find(2))
+    [(2, 'b')]
     >>> list(finder.find(3))
     [(3, 'd')]
     """
@@ -74,25 +94,38 @@ class _UnidirectionalFinder(Generic[Value, Key]):
 
     def __init__(self, iterable: Iterable[Value], key: Callable[[Value], Key]):
         """Initialize"""
-        self._groups = groupby(iterable, key)
+        self._groups = peekable(groupby(iterable, key))
 
     def find(self, key: Key) -> Iterator[Value]:
         """Find items that have the given key."""
         self.seek_to(key)
 
-        if not self._groups:  # When exhausted.
+        if self.is_exhausted:
             return iter(self.__EMPTY_LIST)
 
         group_key, group_items = self._groups.peek()
         if group_key > key:
             return iter(self.__EMPTY_LIST)
 
+        next(self._groups)
         return group_items
 
     def seek_to(self, key: Key) -> None:
         """Seek to the given key."""
         seeked_groups = dropwhile(lambda group: group[0] < key, self._groups)
         self._groups = peekable(seeked_groups)
+
+    @property
+    def is_exhausted(self) -> bool:
+        """Check if the iterator is exhausted."""
+        return not self._groups
+
+    def current_key(self) -> Key:
+        """
+        Returns the current key.
+        When exhausted, then throws StopIteration.
+        """
+        return self._groups.peek()[0]
 
 
 def relate_one_to_many(
@@ -151,8 +184,8 @@ def relate_one_to_many(
     ...     left, list(right)
     ((1, 'a'), [])
 
-    When given unordered `lhs`, then skips relationing
-    on reverse-ordering segments.
+    When given unordered `lhs`, then stops relationing
+    at reverse-ordering segments.
     >>> lhs = [(0, 'a'), (2, 'b'), (1, 'c'), (4, 'd'), (3, 'e')]
     >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v'), (4, 'w')]
     >>> relations = relate_one_to_many(lhs, rhs)
@@ -164,8 +197,8 @@ def relate_one_to_many(
     ((4, 'd'), [(4, 'w')])
     ((3, 'e'), [])
 
-    When given unordered `rhs, then skips relationing
-    on reverse-ordering segments.
+    When given unordered `rhs`, then stops relationing
+    at reverse-ordering segments.
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
     >>> rhs = [(1, 's'), (3, 't'), (3, 'u'), (2, 'v'), (4, 'w')]
     >>> relations = relate_one_to_many(lhs, rhs)
