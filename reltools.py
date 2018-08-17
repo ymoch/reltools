@@ -264,7 +264,7 @@ def left_join(
     - Groups `lhs` by `lhs_key`.
     - Run `relate_one_to_many` with that group as `lhs` and `rhs`.
 
-    Here are normal case.
+    Here are some normal cases.
     Note that the `right` can empty, like SQL left joining.
     >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
     >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
@@ -394,7 +394,7 @@ def inner_join(
     In contrast to `left_join`, `right` cannot be empty,
     like SQL inner joining.
 
-    Here is a normal case.
+    Here are some normal cases.
     >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
     >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
     >>> relations = inner_join(lhs, rhs)
