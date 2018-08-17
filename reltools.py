@@ -11,70 +11,71 @@ __author__ = 'Yu Mochizuki'
 __author_email__ = 'ymoch.dev@gmail.com'
 
 
-K = TypeVar('K')
-T = TypeVar('T')
-U = TypeVar('U')
-V = TypeVar('V')
+Key = TypeVar('Key')
+Value = TypeVar('Value')
+Left = TypeVar('Left')
+Right = TypeVar('Right')
 
 DEFAULT_KEY = itemgetter(0)
 
 
-class UnidirectionalFinder(Generic[V, K]):
+class _UnidirectionalFinder(Generic[Value, Key]):
     """
-    This class finds items unidirectionally.
+    This class finds items in `iterable` unidirectionally
+    and groups them by the given `key`.
 
-    Note that the key type `K` must be 'comparable'
+    Note that the `Key` must be 'comparable'
     (supports `__lt__()` and  `__gt__()`)
     and `iterable` must be sorted by `key`.
 
-    When not given the key, then default key `operator.itemgetter(0)` is used.
-
-    Normal case:
-
+    Here are some normal cases.
+    Collections are sorted by the first items.
     >>> iterable = [(0, 'a'), (1, 'b'), (1, 'c'), (2, 'd')]
-    >>> finder = UnidirectionalFinder(iterable)
+    >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
 
-    Able to find waiting keys and group by the key.
+    When given a waiting key, then finds items and groups them by the key.
     >>> list(finder.find(1))
     [(1, 'b'), (1, 'c')]
 
-    Unable to find passed keys.
+    When given passed keys, then cannot find items.
     >>> list(finder.find(1))
     []
     >>> list(finder.find(0))
     []
 
-    Unable to find too large keys.
+    When given too large keys, then cannot find items.
     >>> list(finder.find(3))
     []
 
-    Once given a too large key, unable to find existing keys.
+    Once given a too large key,
+    when given an existing key, then cannot find items.
     >>> list(finder.find(2))
     []
 
-    Given a custom key, then find and group items by it.
-    >>> finder = UnidirectionalFinder(iterable, lambda x: x[0] // 2)
-    >>> list(finder.find(0))
-    [(0, 'a'), (1, 'b'), (1, 'c')]
-
-    Seminormal case:
-
-    Given an empty collection, then unable to find any items.
-    >>> finder = UnidirectionalFinder([])
+    Here are some seminormal cases.
+    When given an empty collection, then cannot find any items.
+    >>> finder = _UnidirectionalFinder([], itemgetter(0))
     >>> list(finder.find(0))
     []
-    """
-    __EMPTY_LIST = []
 
-    def __init__(
-        self,
-        iterable: Iterable[V],
-        key: Callable[[V], K]=DEFAULT_KEY,
-    ):
+    When given a not sorted `iterable`,
+    then skips the reverse-ordering segments.
+    >>> iterable = [(0, 'a'), (2, 'b'), (1, 'c'), (3, 'd')]
+    >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
+    >>> list(finder.find(2))
+    [(2, 'b')]
+    >>> list(finder.find(1))
+    []
+    >>> list(finder.find(3))
+    [(3, 'd')]
+    """
+    __EMPTY_LIST = []  # type: List[Value]
+
+    def __init__(self, iterable: Iterable[Value], key: Callable[[Value], Key]):
         """Initialize"""
         self._groups = groupby(iterable, key)
 
-    def find(self, key: K) -> Iterator[V]:
+    def find(self, key: Key) -> Iterator[Value]:
         """Find items that have the given key."""
         self.seek_to(key)
 
@@ -89,24 +90,37 @@ class UnidirectionalFinder(Generic[V, K]):
 
         return group_items
 
-    def seek_to(self, key: K) -> None:
+    def seek_to(self, key: Key) -> None:
         """Seek to the given key."""
         seeked_groups = dropwhile(lambda group: group[0] < key, self._groups)
         self._groups = peekable(seeked_groups)
 
 
 def relate_one_to_many(
-    lhs: Iterable[T],
-    rhs: Iterable[U],
-    lhs_key: Callable[[T], K]=DEFAULT_KEY,
-    rhs_key: Callable[[T], K]=DEFAULT_KEY,
-) -> Iterator[Tuple[T, Iterator[U]]]:
+    lhs: Iterable[Left],
+    rhs: Iterable[Right],
+    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+) -> Iterator[Tuple[Left, Iterator[Right]]]:
     """
     Relates `rhs` items to each `lhs` items.
 
-    Normal case:
+    Note that:
+    - `Key` must be 'comparable' (supports `__lt__()` and  `__gt__()`).
+    - `lhs` must be sorted by keys that `lhs_key` provides.
+    - `rhs` must be sorted by keys that `rhs_key` provides.
+
+    `lhs_key` and `rhs_key` are optional.
+    When not given, then relates `rhs` to `lhs`
+    by their first items (`left[0]` and `right[0]`).
+
+    Here are some normal cases.
+    These collections are sorted by the first items.
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c')]
     >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v')]
+
+    When not given any keys,
+    then relates `rhs` to `lhs` by their first items.
     >>> relations = relate_one_to_many(lhs, rhs)
     >>> for left, right in relations:
     ...     left, list(right)
@@ -114,9 +128,11 @@ def relate_one_to_many(
     ((1, 'b'), [(1, 's')])
     ((2, 'c'), [(2, 't'), (2, 'u')])
 
-    Given a custom key, then relates with it.
+    When given custom keys, then relates `rhs` to `lhs` by that keys.
+    Note that the custom keys *must not* break the key ordering.
     >>> relations = relate_one_to_many(
-    ...     lhs, rhs, lhs_key=lambda l: l[0] * 2,
+    ...     lhs, rhs,
+    ...     lhs_key=lambda l: l[0] * 2,
     ...     rhs_key=lambda r: r[0] - 1)
     >>> for left, right in relations:
     ...     left, list(right)
@@ -124,14 +140,45 @@ def relate_one_to_many(
     ((1, 'b'), [(3, 'v')])
     ((2, 'c'), [])
 
-    Seminormal case:
-    >>> lhs = []
-    >>> rhs = [(1, 'a')]
-    >>> relations = relate_one_to_many(lhs, rhs)
+    Here are some seminormal cases.
+    When given an empty `lhs`, then returns an empty iterator.
+    >>> relations = relate_one_to_many([], [(1, 's')])
     >>> next(relations)
     Traceback (most recent call last):
         ...
     StopIteration
+
+    When given an empty `rhs`, then returns an iterator that relates nothing.
+    >>> relations = relate_one_to_many([(1, 'a')], [])
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((1, 'a'), [])
+
+    When given unordered `lhs`, then skips relationing
+    on reverse-ordering segments.
+    >>> lhs = [(0, 'a'), (2, 'b'), (1, 'c'), (4, 'd'), (3, 'e')]
+    >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v'), (4, 'w')]
+    >>> relations = relate_one_to_many(lhs, rhs)
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((0, 'a'), [])
+    ((2, 'b'), [(2, 't'), (2, 'u')])
+    ((1, 'c'), [])
+    ((4, 'd'), [(4, 'w')])
+    ((3, 'e'), [])
+
+    When given unordered `rhs, then skips relationing
+    on reverse-ordering segments.
+    >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
+    >>> rhs = [(1, 's'), (3, 't'), (3, 'u'), (2, 'v'), (4, 'w')]
+    >>> relations = relate_one_to_many(lhs, rhs)
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((0, 'a'), [])
+    ((1, 'b'), [(1, 's')])
+    ((2, 'c'), [])
+    ((3, 'd'), [(3, 't'), (3, 'u')])
+    ((4, 'e'), [(4, 'w')])
     """
-    rhs_finder = UnidirectionalFinder(rhs, rhs_key)
+    rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
     return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
