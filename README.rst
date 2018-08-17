@@ -74,7 +74,7 @@ While SQL left joining returns all the combinations,
 this returns the pair of items.
 Note that the `right` can empty, like SQL left joining.
 
->>> from reltools import left_outer_join
+>>> from reltools import left_join
 >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
 >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
 >>> relations = left_join(lhs, rhs)
