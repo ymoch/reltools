@@ -21,56 +21,46 @@ DEFAULT_KEY = itemgetter(0)
 
 class _UnidirectionalFinder(Generic[Value, Key]):
     """
-    This class finds items unidirectionally.
+    This class finds items in `iterable` unidirectionally
+    and groups them by the given `key`.
 
     Note that the `Key` must be 'comparable'
     (supports `__lt__()` and  `__gt__()`)
     and `iterable` must be sorted by `key`.
 
-    When not given the key, then default key `operator.itemgetter(0)` is used.
-
-    Normal case:
-
+    Here are some normal cases.
+    Collections are sorted by the first items.
     >>> iterable = [(0, 'a'), (1, 'b'), (1, 'c'), (2, 'd')]
-    >>> finder = _UnidirectionalFinder(iterable)
+    >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
 
-    Able to find waiting keys and group by the key.
+    When given a waiting key, then finds items and groups them by the key.
     >>> list(finder.find(1))
     [(1, 'b'), (1, 'c')]
 
-    Unable to find passed keys.
+    When given passed keys, then cannot find items.
     >>> list(finder.find(1))
     []
     >>> list(finder.find(0))
     []
 
-    Unable to find too large keys.
+    When given too large keys, then cannot find items.
     >>> list(finder.find(3))
     []
 
-    Once given a too large key, unable to find existing keys.
+    Once given a too large key,
+    when given an existing key, then cannot find items.
     >>> list(finder.find(2))
     []
 
-    Given a custom key, then find and group items by it.
-    >>> finder = _UnidirectionalFinder(iterable, lambda x: x[0] // 2)
-    >>> list(finder.find(0))
-    [(0, 'a'), (1, 'b'), (1, 'c')]
-
-    Seminormal case:
-
-    Given an empty collection, then unable to find any items.
-    >>> finder = _UnidirectionalFinder([])
+    Here are some seminormal cases.
+    When given an empty collection, then cannot find any items.
+    >>> finder = _UnidirectionalFinder([], itemgetter(0))
     >>> list(finder.find(0))
     []
     """
     __EMPTY_LIST = []  # type: List[Value]
 
-    def __init__(
-        self,
-        iterable: Iterable[Value],
-        key: Callable[[Value], Key]=DEFAULT_KEY,
-    ):
+    def __init__(self, iterable: Iterable[Value], key: Callable[[Value], Key]):
         """Initialize"""
         self._groups = groupby(iterable, key)
 
