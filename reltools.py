@@ -6,6 +6,7 @@ from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
 
 from more_itertools import peekable
 
+
 __version__ = '0.9.0'
 __author__ = 'Yu Mochizuki'
 __author_email__ = 'ymoch.dev@gmail.com'
