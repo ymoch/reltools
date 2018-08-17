@@ -11,19 +11,19 @@ __author__ = 'Yu Mochizuki'
 __author_email__ = 'ymoch.dev@gmail.com'
 
 
-K = TypeVar('K')
-T = TypeVar('T')
-U = TypeVar('U')
-V = TypeVar('V')
+Key = TypeVar('Key')
+Value = TypeVar('Value')
+Left = TypeVar('Left')
+Right = TypeVar('Right')
 
 DEFAULT_KEY = itemgetter(0)
 
 
-class UnidirectionalFinder(Generic[V, K]):
+class UnidirectionalFinder(Generic[Value, Key]):
     """
     This class finds items unidirectionally.
 
-    Note that the key type `K` must be 'comparable'
+    Note that the `Key` must be 'comparable'
     (supports `__lt__()` and  `__gt__()`)
     and `iterable` must be sorted by `key`.
 
@@ -68,13 +68,13 @@ class UnidirectionalFinder(Generic[V, K]):
 
     def __init__(
         self,
-        iterable: Iterable[V],
-        key: Callable[[V], K]=DEFAULT_KEY,
+        iterable: Iterable[Value],
+        key: Callable[[Value], Key]=DEFAULT_KEY,
     ):
         """Initialize"""
         self._groups = groupby(iterable, key)
 
-    def find(self, key: K) -> Iterator[V]:
+    def find(self, key: Key) -> Iterator[Value]:
         """Find items that have the given key."""
         self.seek_to(key)
 
@@ -89,18 +89,18 @@ class UnidirectionalFinder(Generic[V, K]):
 
         return group_items
 
-    def seek_to(self, key: K) -> None:
+    def seek_to(self, key: Key) -> None:
         """Seek to the given key."""
         seeked_groups = dropwhile(lambda group: group[0] < key, self._groups)
         self._groups = peekable(seeked_groups)
 
 
 def relate_one_to_many(
-    lhs: Iterable[T],
-    rhs: Iterable[U],
-    lhs_key: Callable[[T], K]=DEFAULT_KEY,
-    rhs_key: Callable[[T], K]=DEFAULT_KEY,
-) -> Iterator[Tuple[T, Iterator[U]]]:
+    lhs: Iterable[Left],
+    rhs: Iterable[Right],
+    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+) -> Iterator[Tuple[Left, Iterator[Right]]]:
     """
     Relates `rhs` items to each `lhs` items.
 
