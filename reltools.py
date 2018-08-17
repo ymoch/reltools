@@ -109,6 +109,10 @@ def relate_one_to_many(
     - `lhs` must be sorted by keys that `lhs_key` provides.
     - `rhs` must be sorted by keys that `rhs_key` provides.
 
+    `lhs_key` and `rhs_key` are optional.
+    When not given, then relates `rhs` to `lhs`
+    by their first items (`left[0]` and `right[0]`).
+
     Here are some normal cases.
     These collections are sorted by the first items.
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c')]
@@ -124,7 +128,7 @@ def relate_one_to_many(
     ((2, 'c'), [(2, 't'), (2, 'u')])
 
     When given custom keys, then relates `rhs` to `lhs` by that keys.
-    Note that the custom keys *should not* break the key ordering.
+    Note that the custom keys *must not* break the key ordering.
     >>> relations = relate_one_to_many(
     ...     lhs, rhs,
     ...     lhs_key=lambda l: l[0] * 2,
