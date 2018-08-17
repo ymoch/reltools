@@ -17,11 +17,12 @@ Value = TypeVar('Value')
 Left = TypeVar('Left')
 Right = TypeVar('Right')
 
+_EMPTY_LIST = []  # type: list
 FIRST_ITEM_KEY = itemgetter(0)
 DEFAULT_KEY = FIRST_ITEM_KEY
 
 
-class _UnidirectionalFinder(Generic[Value, Key]):
+class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
     """
     This class finds items in `iterable` unidirectionally
     and groups them by the given `key`.
@@ -115,9 +116,11 @@ class _UnidirectionalFinder(Generic[Value, Key]):
     >>> list(finder.find(3))
     [(3, 'd')]
     """
-    __EMPTY_LIST = []  # type: List[Value]
-
-    def __init__(self, iterable: Iterable[Value], key: Callable[[Value], Key]):
+    def __init__(
+        self,
+        iterable: Iterable[Value],
+        key: Callable[[Value], Key],
+    ) -> None:
         """Initialize"""
         self._groups = peekable(groupby(iterable, key))
 
@@ -126,11 +129,11 @@ class _UnidirectionalFinder(Generic[Value, Key]):
         self.seek_to(key)
 
         if not self.has_items:
-            return iter(self.__EMPTY_LIST)
+            return iter(_EMPTY_LIST)
 
         group_key, group_items = self._groups.peek()
         if group_key > key:
-            return iter(self.__EMPTY_LIST)
+            return iter(_EMPTY_LIST)
 
         next(self)
         return group_items
@@ -152,7 +155,7 @@ class _UnidirectionalFinder(Generic[Value, Key]):
         """
         return self._groups.peek()[0]
 
-    def __next__(self) -> Iterable[Value]:
+    def __next__(self) -> Iterator[Value]:
         """
         Returns the current value and move to the next.
         When exhausted, then throws StopIteration.
@@ -369,14 +372,14 @@ def outer_join(
 
     while lhs_finder.has_items:
         if not rhs_finder.has_items:
-            yield next(lhs_finder), []
+            yield next(lhs_finder), iter(_EMPTY_LIST)
             continue
 
         key_curr = min(lhs_finder.current_key(), rhs_finder.current_key())
         yield lhs_finder.find(key_curr), rhs_finder.find(key_curr)
 
     while rhs_finder.has_items:
-        yield [], next(rhs_finder)
+        yield iter(_EMPTY_LIST), next(rhs_finder)
 
 
 def inner_join(
