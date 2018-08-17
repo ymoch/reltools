@@ -57,6 +57,17 @@ class _UnidirectionalFinder(Generic[Value, Key]):
     >>> finder = _UnidirectionalFinder([], itemgetter(0))
     >>> list(finder.find(0))
     []
+
+    When given a not sorted `iterable`,
+    then skips the reverse-ordering segments.
+    >>> iterable = [(0, 'a'), (2, 'b'), (1, 'c'), (3, 'd')]
+    >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
+    >>> list(finder.find(2))
+    [(2, 'b')]
+    >>> list(finder.find(1))
+    []
+    >>> list(finder.find(3))
+    [(3, 'd')]
     """
     __EMPTY_LIST = []  # type: List[Value]
 
