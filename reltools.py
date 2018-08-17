@@ -19,7 +19,7 @@ Right = TypeVar('Right')
 DEFAULT_KEY = itemgetter(0)
 
 
-class UnidirectionalFinder(Generic[Value, Key]):
+class _UnidirectionalFinder(Generic[Value, Key]):
     """
     This class finds items unidirectionally.
 
@@ -32,7 +32,7 @@ class UnidirectionalFinder(Generic[Value, Key]):
     Normal case:
 
     >>> iterable = [(0, 'a'), (1, 'b'), (1, 'c'), (2, 'd')]
-    >>> finder = UnidirectionalFinder(iterable)
+    >>> finder = _UnidirectionalFinder(iterable)
 
     Able to find waiting keys and group by the key.
     >>> list(finder.find(1))
@@ -53,14 +53,14 @@ class UnidirectionalFinder(Generic[Value, Key]):
     []
 
     Given a custom key, then find and group items by it.
-    >>> finder = UnidirectionalFinder(iterable, lambda x: x[0] // 2)
+    >>> finder = _UnidirectionalFinder(iterable, lambda x: x[0] // 2)
     >>> list(finder.find(0))
     [(0, 'a'), (1, 'b'), (1, 'c')]
 
     Seminormal case:
 
     Given an empty collection, then unable to find any items.
-    >>> finder = UnidirectionalFinder([])
+    >>> finder = _UnidirectionalFinder([])
     >>> list(finder.find(0))
     []
     """
@@ -153,5 +153,5 @@ def relate_one_to_many(
     ...     left, list(right)
     ((1, 'a'), [])
     """
-    rhs_finder = UnidirectionalFinder(rhs, rhs_key)
+    rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
     return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
