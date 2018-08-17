@@ -84,6 +84,19 @@ Note that the `right` can empty, like SQL left joining.
 ([(2, 'c')], [])
 ([(4, 'd')], [(4, 'v')])
 
+Inner Join
+**********
+
+Here is a sample for SQL inner joining using `inner_join`.
+In contrast to `left_join`, `right` cannot be empty, like SQL inner joining.
+
+>>> from reltools import inner_join
+>>> relations = inner_join(lhs, rhs)
+>>> for left, right in relations:
+...     list(left), list(right)
+([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+([(4, 'd')], [(4, 'v')])
+
 Many-To-Many
 ************
 

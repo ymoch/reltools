@@ -144,10 +144,8 @@ def relate_one_to_many(
     Here are some seminormal cases.
     When given an empty `lhs`, then returns an empty iterator.
     >>> relations = relate_one_to_many([], [(1, 's')])
-    >>> next(relations)
-    Traceback (most recent call last):
-        ...
-    StopIteration
+    >>> list(relations)
+    []
 
     When given an empty `rhs`, then returns an iterator that relates nothing.
     >>> relations = relate_one_to_many([(1, 'a')], [])
@@ -192,7 +190,7 @@ def left_join(
     rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
 ) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
     """
-    Join two iterables like SQL in left joining.
+    Join two iterables like SQL left joining.
     While SQL left joining returns all the combinations,
     this returns the pair of items.
 
@@ -203,7 +201,7 @@ def left_join(
     - Groups `lhs` by `lhs_key`.
     - Run `relate_one_to_many` with that group as `lhs` and `rhs`.
 
-    Here are some normal case.
+    Here is a normal case.
     Note that the `right` can empty, like SQL left joining.
     >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
     >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
@@ -214,14 +212,47 @@ def left_join(
     ([(2, 'c')], [])
     ([(4, 'd')], [(4, 'v')])
 
-    Here are an seminormal cases.
+    Here is a seminormal cases.
     When given empty `lhs`, returns the empty iterator.
     >>> relations = left_join([], [(1, 's')])
-    >>> next(relations)
-    Traceback (most recent call last):
-        ...
-    StopIteration
+    >>> list(relations)
+    []
     """
     lhs_groups = groupby(lhs, lhs_key)
     relations = relate_one_to_many(lhs_groups, rhs, FIRST_ITEM_KEY, rhs_key)
     return ((left, right) for ((_, left), right) in relations)
+
+
+def inner_join(
+    lhs: Iterable[Left],
+    rhs: Iterable[Right],
+    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
+    """
+    Join two iterables like SQL inner joining.
+
+    This function's behavior is very similar to `left_join`.
+    See `left_join` doc first.
+
+    In contrast to `left_join`, `right` cannot be empty,
+    like SQL inner joining.
+
+    Here is a normal case.
+    >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
+    >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
+    >>> relations = inner_join(lhs, rhs)
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+    ([(4, 'd')], [(4, 'v')])
+
+    Here is a seminormal cases.
+    When given empty `lhs`, returns the empty iterator.
+    >>> relations = inner_join([], [(1, 's')])
+    >>> list(relations)
+    []
+    """
+    left_joined = left_join(lhs, rhs, lhs_key, rhs_key)
+    relations = ((left, peekable(right)) for (left, right) in left_joined)
+    return ((left, right) for (left, right) in relations if right)
