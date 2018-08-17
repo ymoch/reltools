@@ -104,9 +104,13 @@ def relate_one_to_many(
     """
     Relates `rhs` items to each `lhs` items.
 
-    Normal case:
+    Here are some normal cases.
+    These collections are sorted by the first items.
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c')]
     >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v')]
+
+    When not given any keys,
+    then relates `lhs` with `rhs` by their first items.
     >>> relations = relate_one_to_many(lhs, rhs)
     >>> for left, right in relations:
     ...     left, list(right)
@@ -114,9 +118,11 @@ def relate_one_to_many(
     ((1, 'b'), [(1, 's')])
     ((2, 'c'), [(2, 't'), (2, 'u')])
 
-    Given a custom key, then relates with it.
+    When given custom keys, then relates `lhs` with `rhs` by that keys.
+    Note that the custom keys *should not* break the key ordering.
     >>> relations = relate_one_to_many(
-    ...     lhs, rhs, lhs_key=lambda l: l[0] * 2,
+    ...     lhs, rhs,
+    ...     lhs_key=lambda l: l[0] * 2,
     ...     rhs_key=lambda r: r[0] - 1)
     >>> for left, right in relations:
     ...     left, list(right)
@@ -124,10 +130,16 @@ def relate_one_to_many(
     ((1, 'b'), [(3, 'v')])
     ((2, 'c'), [])
 
-    Seminormal case:
-    >>> lhs = []
-    >>> rhs = [(1, 'a')]
-    >>> relations = relate_one_to_many(lhs, rhs)
+    Here are some seminormal cases.
+    When given an empty `lhs`, then returns an empty iterator.
+    >>> relations = relate_one_to_many([], [(1, 's')])
+    >>> next(relations)
+    Traceback (most recent call last):
+        ...
+    StopIteration
+
+    When given an empty `rhs`, then returns an empty iterator.
+    >>> relations = relate_one_to_many([(1, 'a')], [])
     >>> next(relations)
     Traceback (most recent call last):
         ...
