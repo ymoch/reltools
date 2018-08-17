@@ -30,12 +30,11 @@ Install with `pip <https://pypi.org/project/pip/>`_.
 Samples
 -------
 
-First, import `reltools`.
+One-To-Many
+***********
 
->>> from reltools import relate_one_to_many
-
-Here, input data are sorted in 1st and 2nd keys.
-
+Here is a sample for *one-to-many* relations using `relate_one_to_many`.
+Input collections are sorted in 1st and 2nd keys.
 >>> lhs = [
 ...     (1, 'a', 's'),
 ...     (2, 'a', 't'),
@@ -47,11 +46,7 @@ Here, input data are sorted in 1st and 2nd keys.
 ...     (3, 'b', 'x'),
 ... ]
 
-One-To-Many
-***********
-
-Here is a sample for *one-to-many* relations.
-
+>>> from reltools import relate_one_to_many
 >>> one_to_many_related = relate_one_to_many(lhs, rhs)
 >>> for left, right in one_to_many_related:
 ...     left, list(right)
@@ -70,6 +65,32 @@ You can use custom keys for all API functions.
 ((1, 'a', 's'), [(1, 'a', 'v')])
 ((2, 'a', 't'), [])
 ((3, 'b', 'u'), [(3, 'b', 'x')])
+
+Left Outer Join
+***************
+
+Here is a sample for SQL left outer joining using `left_join`.
+While SQL left joining returns all the combinations,
+this returns the pair of items.
+Note that the `right` can empty, like SQL left joining.
+
+>>> from reltools import left_join
+>>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
+>>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
+>>> relations = left_join(lhs, rhs)
+>>> for left, right in relations:
+...     list(left), list(right)
+([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+([(2, 'c')], [])
+([(4, 'd')], [(4, 'v')])
+
+Many-To-Many
+************
+
+SQL-like *many-to-many* relationing using an internal table is not supported.
+This is because *reltools* supports only sorted data
+and does not prefer random accessing.
+To achieve *many-to-many* relationing, unnormalize data on preproceing.
 
 License
 -------
