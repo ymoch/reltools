@@ -64,7 +64,7 @@ class UnidirectionalFinder(Generic[Value, Key]):
     >>> list(finder.find(0))
     []
     """
-    __EMPTY_LIST = []
+    __EMPTY_LIST = []  # type: List[Value]
 
     def __init__(
         self,
@@ -115,7 +115,7 @@ def relate_one_to_many(
     >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v')]
 
     When not given any keys,
-    then relates `lhs` with `rhs` by their first items.
+    then relates `rhs` to `lhs` by their first items.
     >>> relations = relate_one_to_many(lhs, rhs)
     >>> for left, right in relations:
     ...     left, list(right)
@@ -123,7 +123,7 @@ def relate_one_to_many(
     ((1, 'b'), [(1, 's')])
     ((2, 'c'), [(2, 't'), (2, 'u')])
 
-    When given custom keys, then relates `lhs` with `rhs` by that keys.
+    When given custom keys, then relates `rhs` to `lhs` by that keys.
     Note that the custom keys *should not* break the key ordering.
     >>> relations = relate_one_to_many(
     ...     lhs, rhs,
@@ -143,12 +143,11 @@ def relate_one_to_many(
         ...
     StopIteration
 
-    When given an empty `rhs`, then returns an empty iterator.
+    When given an empty `rhs`, then returns an iterator that relates nothing.
     >>> relations = relate_one_to_many([(1, 'a')], [])
-    >>> next(relations)
-    Traceback (most recent call last):
-        ...
-    StopIteration
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((1, 'a'), [])
     """
     rhs_finder = UnidirectionalFinder(rhs, rhs_key)
     return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
