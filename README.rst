@@ -85,6 +85,13 @@ Note that the ``right`` can empty, like SQL left joining.
 ([(2, 'c')], [])
 ([(4, 'd')], [(4, 'v')])
 
+Right Outer Join
+****************
+
+Right outer join is not supported
+because it is left-and-right-opposite of left joining.
+Use ``left_join(rhs, lhs, rhs_key, lhs_key)``.
+
 Inner Join
 **********
 
@@ -105,7 +112,8 @@ Many-To-Many
 SQL-like *many-to-many* relationing using an internal table is not supported.
 This is because *reltools* supports only sorted data
 and does not prefer random accessing.
-To achieve *many-to-many* relationing, unnormalize data on preproceing.
+To achieve *many-to-many* relationing, unnormalize data on preproceing and
+use outer joining or inner joining.
 
 License
 -------
