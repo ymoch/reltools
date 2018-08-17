@@ -57,3 +57,11 @@ You can use custom keys for all API functions.
 ((1, 'a', 's'), [(1, 'a', 'v')])
 ((2, 'a', 't'), [])
 ((3, 'b', 'u'), [(3, 'b', 'x')])
+
+License
+-------
+
+.. image:: https://img.shields.io/badge/License-MIT-brightgreen.svg
+    :target: https://opensource.org/licenses/MIT
+
+Copyright (c) 2018 Yu MOCHIZUKI
