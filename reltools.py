@@ -16,7 +16,8 @@ Value = TypeVar('Value')
 Left = TypeVar('Left')
 Right = TypeVar('Right')
 
-DEFAULT_KEY = itemgetter(0)
+FIRST_ITEM_KEY = itemgetter(0)
+DEFAULT_KEY = FIRST_ITEM_KEY
 
 
 class _UnidirectionalFinder(Generic[Value, Key]):
@@ -182,3 +183,45 @@ def relate_one_to_many(
     """
     rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
     return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
+
+
+def left_join(
+    lhs: Iterable[Left],
+    rhs: Iterable[Right],
+    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
+    """
+    Join two iterables like SQL in left joining.
+    While SQL left joining returns all the combinations,
+    this returns the pair of items.
+
+    The arguments are very similar to `relate_one_to_many`.
+    See `relate_one_to_many` doc for more information.
+
+    This function is equivalent to below:
+    - Groups `lhs` by `lhs_key`.
+    - Run `relate_one_to_many` with that group as `lhs` and `rhs`.
+
+    Here are some normal case.
+    Note that the `right` can empty, like SQL left joining.
+    >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
+    >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
+    >>> relations = left_join(lhs, rhs)
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+    ([(2, 'c')], [])
+    ([(4, 'd')], [(4, 'v')])
+
+    Here are an seminormal cases.
+    When given empty `lhs`, returns the empty iterator.
+    >>> relations = left_join([], [(1, 's')])
+    >>> next(relations)
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    """
+    lhs_groups = groupby(lhs, lhs_key)
+    relations = relate_one_to_many(lhs_groups, rhs, FIRST_ITEM_KEY, rhs_key)
+    return ((left, right) for ((_, left), right) in relations)
