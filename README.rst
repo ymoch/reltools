@@ -14,6 +14,15 @@ as long as input data are sorted, almost all processes are evaluated lazily,
 which results in the reduction of memory usage.
 This feature is for the big data joining without any SQL engines.
 
+Installation
+------------
+
+Choose one from the following.
+
+- Install with `pip <https://pypi.org/project/pip/>`_.
+    - Run :code:`pip install reltools`.
+- Put `reltools.py` into your project.
+
 Samples
 -------
 
