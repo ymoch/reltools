@@ -92,6 +92,24 @@ Right outer join is not supported
 because it is left-and-right-opposite of left joining.
 Use ``left_join(rhs, lhs, rhs_key, lhs_key)``.
 
+Full Outer Join
+***************
+
+An original feature that ``outer_join`` provides.
+In contrast to ``left_join``, full outer joining preserve keys
+that are only in ``rhs``.
+
+>>> from reltools import outer_join
+>>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
+>>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
+>>> relations = outer_join(lhs, rhs)
+>>> for left, right in relations:
+...     list(left), list(right)
+([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+([(2, 'c')], [])
+([], [(3, 'u')])
+([(4, 'd')], [(4, 'v')])
+
 Inner Join
 **********
 

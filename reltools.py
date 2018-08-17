@@ -6,6 +6,7 @@ from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
 
 from more_itertools import peekable
 
+
 __version__ = '0.9.0'
 __author__ = 'Yu Mochizuki'
 __author_email__ = 'ymoch.dev@gmail.com'
@@ -33,10 +34,16 @@ class _UnidirectionalFinder(Generic[Value, Key]):
     Collections are sorted by the first items.
     >>> iterable = [(0, 'a'), (1, 'b'), (1, 'c'), (2, 'd')]
     >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
+    >>> finder.has_items
+    True
+    >>> finder.current_key()
+    0
 
     When given a waiting key, then finds items and groups them by the key.
     >>> list(finder.find(1))
     [(1, 'b'), (1, 'c')]
+    >>> finder.current_key()
+    2
 
     When given passed keys, then cannot find items.
     >>> list(finder.find(1))
@@ -45,28 +52,66 @@ class _UnidirectionalFinder(Generic[Value, Key]):
     []
 
     When given too large keys, then cannot find items.
+    Once given a too large key, the finder is exhausted.
     >>> list(finder.find(3))
     []
+    >>> finder.has_items
+    False
+    >>> finder.current_key()
+    Traceback (most recent call last):
+        ...
+    StopIteration
 
-    Once given a too large key,
-    when given an existing key, then cannot find items.
+    When exhausted and given an existing key, then cannot find items.
     >>> list(finder.find(2))
     []
+
+    Sequencial usage is also supported.
+    >>> iterable = [(0, 'a'), (1, 'b'), (1, 'c'), (2, 'd'), (3, 'e')]
+    >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
+    >>> finder.current_key()
+    0
+    >>> list(next(finder))
+    [(0, 'a')]
+    >>> finder.current_key()
+    1
+    >>> list(next(finder))
+    [(1, 'b'), (1, 'c')]
+    >>> finder.current_key()
+    2
+    >>> list(finder.find(3))
+    [(3, 'e')]
+    >>> finder.current_key()
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> next(finder)
+    Traceback (most recent call last):
+        ...
+    StopIteration
 
     Here are some seminormal cases.
     When given an empty collection, then cannot find any items.
     >>> finder = _UnidirectionalFinder([], itemgetter(0))
+    >>> finder.has_items
+    False
     >>> list(finder.find(0))
     []
+    >>> finder.current_key()
+    Traceback (most recent call last):
+        ...
+    StopIteration
 
     When given a not sorted `iterable`,
-    then skips the reverse-ordering segments.
+    then stops finding at reverse-ordering segments.
     >>> iterable = [(0, 'a'), (2, 'b'), (1, 'c'), (3, 'd')]
     >>> finder = _UnidirectionalFinder(iterable, itemgetter(0))
-    >>> list(finder.find(2))
-    [(2, 'b')]
     >>> list(finder.find(1))
     []
+    >>> finder.current_key()
+    2
+    >>> list(finder.find(2))
+    [(2, 'b')]
     >>> list(finder.find(3))
     [(3, 'd')]
     """
@@ -74,25 +119,45 @@ class _UnidirectionalFinder(Generic[Value, Key]):
 
     def __init__(self, iterable: Iterable[Value], key: Callable[[Value], Key]):
         """Initialize"""
-        self._groups = groupby(iterable, key)
+        self._groups = peekable(groupby(iterable, key))
 
     def find(self, key: Key) -> Iterator[Value]:
         """Find items that have the given key."""
         self.seek_to(key)
 
-        if not self._groups:  # When exhausted.
+        if not self.has_items:
             return iter(self.__EMPTY_LIST)
 
         group_key, group_items = self._groups.peek()
         if group_key > key:
             return iter(self.__EMPTY_LIST)
 
+        next(self)
         return group_items
 
     def seek_to(self, key: Key) -> None:
         """Seek to the given key."""
         seeked_groups = dropwhile(lambda group: group[0] < key, self._groups)
         self._groups = peekable(seeked_groups)
+
+    @property
+    def has_items(self) -> bool:
+        """Check if the iterator has items."""
+        return bool(self._groups)
+
+    def current_key(self) -> Key:
+        """
+        Returns the current key.
+        When exhausted, then throws StopIteration.
+        """
+        return self._groups.peek()[0]
+
+    def __next__(self) -> Iterable[Value]:
+        """
+        Returns the current value and move to the next.
+        When exhausted, then throws StopIteration.
+        """
+        return next(self._groups)[1]
 
 
 def relate_one_to_many(
@@ -151,8 +216,8 @@ def relate_one_to_many(
     ...     left, list(right)
     ((1, 'a'), [])
 
-    When given unordered `lhs`, then skips relationing
-    on reverse-ordering segments.
+    When given unordered `lhs`, then stops relationing
+    at reverse-ordering segments.
     >>> lhs = [(0, 'a'), (2, 'b'), (1, 'c'), (4, 'd'), (3, 'e')]
     >>> rhs = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v'), (4, 'w')]
     >>> relations = relate_one_to_many(lhs, rhs)
@@ -164,8 +229,8 @@ def relate_one_to_many(
     ((4, 'd'), [(4, 'w')])
     ((3, 'e'), [])
 
-    When given unordered `rhs, then skips relationing
-    on reverse-ordering segments.
+    When given unordered `rhs`, then stops relationing
+    at reverse-ordering segments.
     >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'), (4, 'e')]
     >>> rhs = [(1, 's'), (3, 't'), (3, 'u'), (2, 'v'), (4, 'w')]
     >>> relations = relate_one_to_many(lhs, rhs)
@@ -219,6 +284,88 @@ def left_join(
     lhs_groups = groupby(lhs, lhs_key)
     relations = relate_one_to_many(lhs_groups, rhs, FIRST_ITEM_KEY, rhs_key)
     return ((left, right) for ((_, left), right) in relations)
+
+
+def outer_join(
+    lhs: Iterable[Left],
+    rhs: Iterable[Right],
+    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
+    """
+    Join two iterables preserving all existing keys.
+    In contrast to `left_join`, this preserve keys that are only in `rhs`.
+
+    The arguments are very similar to `relate_one_to_many`.
+    See `relate_one_to_many` doc for more information.
+
+    Here are some normal cases.
+    Note that all existing keys are covered and
+    both `left` and `right` can be empty.
+    >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
+    >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
+    >>> relations = outer_join(lhs, rhs)
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+    ([(2, 'c')], [])
+    ([], [(3, 'u')])
+    ([(4, 'd')], [(4, 'v')])
+
+    When given custom keys, then joins by them.
+    >>> relations = relate_one_to_many(
+    ...     lhs, rhs,
+    ...     lhs_key=lambda l: l[0] * 2,
+    ...     rhs_key=lambda r: r[0] + 1)
+    >>> for left, right in relations:
+    ...     left, list(right)
+    ((1, 'a'), [(1, 's'), (1, 't')])
+    ((1, 'b'), [])
+    ((2, 'c'), [(3, 'u')])
+    ((4, 'd'), [])
+
+    When given long tail `lhs`, then returns the empty tail for the right.
+    >>> relations = outer_join([(1, 'a'), (2, 'b')], [(1, 's')])
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a')], [(1, 's')])
+    ([(2, 'b')], [])
+
+    When given long tail `rhs`, then returns the empty tail for the left.
+    >>> relations = outer_join([(1, 'a')], [(1, 's'), (2, 't')])
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a')], [(1, 's')])
+    ([], [(2, 't')])
+
+    Here are some seminormal cases.
+    When given empty `lhs`,
+    then returns an iterator that all left items are empty.
+    >>> relations = outer_join([], [(1, 's')])
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([], [(1, 's')])
+
+    When given empty `rhs`,
+    then returns an iterator that all right items are empty
+    >>> relations = outer_join([(1, 'a')], [])
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a')], [])
+    """
+    lhs_finder = _UnidirectionalFinder(lhs, lhs_key)
+    rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
+
+    while lhs_finder.has_items:
+        if not rhs_finder.has_items:
+            yield next(lhs_finder), []
+            continue
+
+        key_curr = min(lhs_finder.current_key(), rhs_finder.current_key())
+        yield lhs_finder.find(key_curr), rhs_finder.find(key_curr)
+
+    while rhs_finder.has_items:
+        yield [], next(rhs_finder)
 
 
 def inner_join(
