@@ -17,11 +17,11 @@ This feature is for the big data joining without any SQL engines.
 Installation
 ------------
 
-Choose one from the following.
+Install with `pip <https://pypi.org/project/pip/>`_.
 
-- Install with `pip <https://pypi.org/project/pip/>`_.
-    - Run :code:`pip install reltools`.
-- Put `reltools.py` into your project.
+.. code-block:: sh
+
+   pip install reltools
 
 Samples
 -------
