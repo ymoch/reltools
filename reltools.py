@@ -80,12 +80,10 @@ class _UnidirectionalFinder(Generic[Value, Key]):
         """Find items that have the given key."""
         self.seek_to(key)
 
-        try:
-            group = self._groups.peek()
-        except StopIteration:
+        if not self._groups:  # When exhausted.
             return iter(self.__EMPTY_LIST)
 
-        group_key, group_items = group
+        group_key, group_items = self._groups.peek()
         if group_key > key:
             return iter(self.__EMPTY_LIST)
 
