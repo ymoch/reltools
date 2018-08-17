@@ -31,6 +31,7 @@ setuptools.setup(
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     url=URL,
+    license='MIT',
     py_modules=[
         'reltools',
     ],
