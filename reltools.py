@@ -264,7 +264,7 @@ def left_join(
     - Groups `lhs` by `lhs_key`.
     - Run `relate_one_to_many` with that group as `lhs` and `rhs`.
 
-    Here is a normal case.
+    Here are some normal cases.
     Note that the `right` can empty, like SQL left joining.
     >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
     >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
@@ -274,6 +274,17 @@ def left_join(
     ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
     ([(2, 'c')], [])
     ([(4, 'd')], [(4, 'v')])
+
+    Custom keys are acceptable.
+    >>> relations = left_join(
+    ...     lhs, rhs,
+    ...     lhs_key=lambda l: l[0] * 2,
+    ...     rhs_key=lambda r: r[0] + 1)
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+    ([(2, 'c')], [(3, 'u')])
+    ([(4, 'd')], [])
 
     Here is a seminormal cases.
     When given empty `lhs`, returns the empty iterator.
@@ -383,7 +394,7 @@ def inner_join(
     In contrast to `left_join`, `right` cannot be empty,
     like SQL inner joining.
 
-    Here is a normal case.
+    Here are some normal cases.
     >>> lhs = [(1, 'a'), (1, 'b'), (2, 'c'), (4, 'd')]
     >>> rhs = [(1, 's'), (1, 't'), (3, 'u'), (4, 'v')]
     >>> relations = inner_join(lhs, rhs)
@@ -391,6 +402,16 @@ def inner_join(
     ...     list(left), list(right)
     ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
     ([(4, 'd')], [(4, 'v')])
+
+    Custom keys are acceptable.
+    >>> relations = inner_join(
+    ...     lhs, rhs,
+    ...     lhs_key=lambda l: l[0] * 2,
+    ...     rhs_key=lambda r: r[0] + 1)
+    >>> for left, right in relations:
+    ...     list(left), list(right)
+    ([(1, 'a'), (1, 'b')], [(1, 's'), (1, 't')])
+    ([(2, 'c')], [(3, 'u')])
 
     Here is a seminormal cases.
     When given empty `lhs`, returns the empty iterator.
