@@ -35,6 +35,7 @@ One-To-Many
 
 Here is a sample for *one-to-many* relations using `relate_one_to_many`.
 Input collections are sorted in 1st and 2nd keys.
+
 >>> lhs = [
 ...     (1, 'a', 's'),
 ...     (2, 'a', 't'),
