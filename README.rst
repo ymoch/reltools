@@ -151,6 +151,12 @@ and run with `pytest <https://docs.pytest.org/en/latest/>`_.
 
     pipenv run py.test
 
+For stability, following checks are also run when testing.
+
+- `pep8 <https://pep8.readthedocs.io/en/release-1.7.x/>`_
+- `pyflakes <https://github.com/PyCQA/pyflakes>`_
+- `mypy <http://mypy-lang.org/>`_
+
 License
 -------
 
