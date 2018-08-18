@@ -140,6 +140,17 @@ and does not prefer random accessing.
 To achieve *many-to-many* relationing, unnormalize data on preproceing and
 use outer joining or inner joining.
 
+Development
+-----------
+
+This project's structure is based on `Pipenv <https://pipenv-ja.readthedocs.io/ja/translate-ja/>`_.
+All tests are written with `doctest <https://docs.python.jp/3/library/doctest.html>`_
+and run with `pytest <https://docs.pytest.org/en/latest/>`_.
+
+.. code-block:: sh
+
+    pipenv run py.test
+
 License
 -------
 
