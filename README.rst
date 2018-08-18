@@ -27,14 +27,16 @@ Install with `pip <https://pypi.org/project/pip/>`_.
 
    pip install reltools
 
-Samples
--------
+Features
+--------
 
 One-To-Many
 ***********
 
-Here is a sample for *one-to-many* relations using ``relate_one_to_many``.
-Input collections are sorted in 1st and 2nd keys.
+*One-to-many* relationing is provided by ``relate_one_to_many``.
+
+Here, input left-hand-side (``lhs``) and right-hand-side (``rhs``)
+are sorted in 1st (and also 2nd) keys.
 
 >>> lhs = [
 ...     (1, 'a', 's'),
@@ -47,6 +49,9 @@ Input collections are sorted in 1st and 2nd keys.
 ...     (3, 'b', 'x'),
 ... ]
 
+``relate_one_to_many`` relates ``rhs`` items
+to each ``lhs`` item using the first items as keys.
+
 >>> from reltools import relate_one_to_many
 >>> one_to_many_related = relate_one_to_many(lhs, rhs)
 >>> for left, right in one_to_many_related:
@@ -55,7 +60,8 @@ Input collections are sorted in 1st and 2nd keys.
 ((2, 'a', 't'), [])
 ((3, 'b', 'u'), [(3, 'b', 'x')])
 
-You can use custom keys for all API functions.
+You can use custom key functions
+for not only ``relate_one_to_many`` but also API functions.
 
 >>> import operator
 >>> custom_key = operator.itemgetter(0, 1)
@@ -70,8 +76,8 @@ You can use custom keys for all API functions.
 Left Outer Join
 ***************
 
-Here is a sample for SQL left outer joining using ``left_join``.
-While SQL left joining returns all the combinations,
+Left outer joining is provided by ``left_join``.
+While SQL left outer joining returns all the combinations,
 this returns the pair of items.
 Note that the ``right`` can empty, like SQL left joining.
 
@@ -88,14 +94,15 @@ Note that the ``right`` can empty, like SQL left joining.
 Right Outer Join
 ****************
 
-Right outer join is not supported
+Right outer joining is not supported
 because it is left-and-right-opposite of left joining.
 Use ``left_join(rhs, lhs, rhs_key, lhs_key)``.
 
 Full Outer Join
 ***************
 
-An original feature that ``outer_join`` provides.
+Full outer joining, which is an original feature of *reltools*,
+is provided by ``outer_join``.
 In contrast to ``left_join``, full outer joining preserve keys
 that are only in ``rhs``.
 
@@ -113,7 +120,7 @@ that are only in ``rhs``.
 Inner Join
 **********
 
-Here is a sample for SQL inner joining using ``inner_join``.
+Inner joining is provided by ``inner_join``.
 In contrast to ``left_join``, ``right`` cannot be empty,
 like SQL inner joining.
 
