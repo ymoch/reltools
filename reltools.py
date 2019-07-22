@@ -1,6 +1,6 @@
 """Relation tools for Python."""
 
-from itertools import dropwhile, groupby
+from itertools import groupby
 from operator import itemgetter
 from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
 
@@ -140,8 +140,11 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
 
     def seek_to(self, key: Key) -> None:
         """Seek to the given key."""
-        seeked_groups = dropwhile(lambda group: group[0] < key, self._groups)
-        self._groups = peekable(seeked_groups)
+        try:
+            while self._groups.peek()[0] < key:
+                next(self._groups)
+        except StopIteration:
+            pass
 
     @property
     def has_items(self) -> bool:
