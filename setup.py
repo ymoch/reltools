@@ -39,6 +39,7 @@ setuptools.setup(
         'more-itertools',
     ],
     setup_requires=[
+        'more-itertools',
         'pytest-runner',
     ],
     tests_require=[
