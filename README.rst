@@ -143,19 +143,20 @@ use outer joining or inner joining.
 Development
 -----------
 
-This project's structure is based on `Pipenv <https://pipenv-ja.readthedocs.io/ja/translate-ja/>`_.
+This project's structure is based on `Poetry <https://poetry.eustace.io/>`_.
 All tests are written with `doctest <https://docs.python.jp/3/library/doctest.html>`_
 and run with `pytest <https://docs.pytest.org/en/latest/>`_.
 
 .. code-block:: sh
 
-    pipenv run py.test
+    poetry install
+    poetry run pytest
 
 For stability, following checks are also run when testing.
 
 - `pep8 <https://pep8.readthedocs.io/en/release-1.7.x/>`_
 - `pyflakes <https://github.com/PyCQA/pyflakes>`_
-- `mypy <http://mypy-lang.org/>`_
+- `pycodestyle <https://pycodestyle.readthedocs.io/en/latest/>`_
 
 License
 -------
