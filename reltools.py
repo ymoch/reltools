@@ -164,8 +164,8 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
 def relate_one_to_many(
     lhs: Iterable[Left],
     rhs: Iterable[Right],
-    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
-    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+    lhs_key: Callable[[Left], Key] = DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key] = DEFAULT_KEY,
 ) -> Iterator[Tuple[Left, Iterator[Right]]]:
     """
     Relates `rhs` items to each `lhs` items.
@@ -250,8 +250,8 @@ def relate_one_to_many(
 def left_join(
     lhs: Iterable[Left],
     rhs: Iterable[Right],
-    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
-    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+    lhs_key: Callable[[Left], Key] = DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key] = DEFAULT_KEY,
 ) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
     """
     Join two iterables like SQL left joining.
@@ -301,8 +301,8 @@ def left_join(
 def outer_join(
     lhs: Iterable[Left],
     rhs: Iterable[Right],
-    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
-    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+    lhs_key: Callable[[Left], Key] = DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key] = DEFAULT_KEY,
 ) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
     """
     Join two iterables preserving all existing keys.
@@ -383,8 +383,8 @@ def outer_join(
 def inner_join(
     lhs: Iterable[Left],
     rhs: Iterable[Right],
-    lhs_key: Callable[[Left], Key]=DEFAULT_KEY,
-    rhs_key: Callable[[Right], Key]=DEFAULT_KEY,
+    lhs_key: Callable[[Left], Key] = DEFAULT_KEY,
+    rhs_key: Callable[[Right], Key] = DEFAULT_KEY,
 ) -> Iterator[Tuple[Iterator[Left], Iterator[Right]]]:
     """
     Join two iterables like SQL inner joining.
