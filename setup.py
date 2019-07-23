@@ -21,7 +21,7 @@ setuptools.setup(
     name='reltools',
     description='Relation tools for Python.',
     long_description=load_long_description(),
-    version='0.9.2',
+    version='0.9.3',
     author='Yu Mochizuki',
     author_email='ymoch.dev@gmail.com',
     url=URL,
