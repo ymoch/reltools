@@ -6,12 +6,6 @@ import os
 
 import setuptools
 
-from reltools import (
-    __version__ as VERSION,
-    __author__ as AUTHOR,
-    __author_email__ as AUTHOR_EMAIL,
-)
-
 
 URL = 'https://github.com/ymoch/reltools'
 
@@ -27,9 +21,9 @@ setuptools.setup(
     name='reltools',
     description='Relation tools for Python.',
     long_description=load_long_description(),
-    version=VERSION,
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
+    version='0.9.2',
+    author='Yu Mochizuki',
+    author_email='ymoch.dev@gmail.com',
     url=URL,
     license='MIT',
     py_modules=[
@@ -39,14 +33,14 @@ setuptools.setup(
         'more-itertools',
     ],
     setup_requires=[
-        'more-itertools',
         'pytest-runner',
     ],
     tests_require=[
         'pytest',
         'pytest-cov',
-        'pytest-pep8',
+        'pytest-codestyle',
         'pytest-flakes',
+        'pytest-mypy',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
