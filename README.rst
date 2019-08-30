@@ -161,6 +161,21 @@ and does not prefer random accessing.
 To achieve *many-to-many* relationing, unnormalize data on preproceing and
 use outer joining or inner joining.
 
+Memory Efficiency
+*****************
+
+Almost all processes are evaluated lazily,
+which results in the reduction of memory usage.
+(You can try the efficiency by commands like
+``RELTOOLS_TRY_COUNT=10000000 python -m doctest README.rst``)
+
+>>> import os
+>>> n = int(os.environ.get('RELTOOLS_TRY_COUNT', 1000))
+>>> lhs = ((i, 'left') for i in range(n))
+>>> rhs = ((i, 'right') for i in range(n))
+>>> for left, right in relate_one_to_many(lhs, rhs):
+...     assert len(list(right)) == 1
+
 Development
 -----------
 
