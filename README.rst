@@ -73,6 +73,27 @@ for not only ``relate_one_to_many`` but also API functions.
 ((2, 'a', 't'), [])
 ((3, 'b', 'u'), [(3, 'b', 'x')])
 
+``OneToManyChainer`` helps to relate many ``rhs`` iterables to ``lhs``.
+
+>>> another_rhs = [
+...     ('s', 'f'),
+...     ('t', 'g'),
+...     ('t', 'h'),
+... ]
+>>> from reltools import OneToManyChainer
+>>> chainer = OneToManyChainer(lhs)
+>>> chainer.append(rhs)
+>>> chainer.append(
+...     another_rhs,
+...     lhs_key=operator.itemgetter(2),
+...     rhs_key=operator.itemgetter(0),
+... )
+>>> for left, right, another_right in chainer.chain():
+...     left, list(right), list(another_right)
+((1, 'a', 's'), [(1, 'a', 'v'), (1, 'b', 'w')], [('s', 'f')])
+((2, 'a', 't'), [], [('t', 'g'), ('t', 'h')])
+((3, 'b', 'u'), [(3, 'b', 'x')], [])
+
 Left Outer Join
 ***************
 
