@@ -161,6 +161,55 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
         return next(self._groups)[1]
 
 
+class OneToManyChainer(Generic[Left]):
+    """
+    Relate `lhs` to one or more `rhs`.
+
+    When given no `rhs`, then iterates the tuple of `lhs`.
+    >>> lhs = [(0, 'a'), (1, 'b'), (2, 'c')]
+    >>> chainer = OneToManyChainer(lhs)
+    >>> for left in chainer.chain():
+    ...     left
+    ((0, 'a'),)
+    ((1, 'b'),)
+    ((2, 'c'),)
+
+    When given `lhs`, `rhs1` and `rhs2`,
+    then iterates the tuple of (`lhs`, `rhs1`, `rhs2`)
+    >>> rhs1 = [(1, 's'), (2, 't'), (2, 'u'), (3, 'v')]
+    >>> rhs2 = [('a', 'x'), ('a', 'y'), ('b', 'z')]
+    >>> chainer = OneToManyChainer(lhs)
+    >>> chainer.append(rhs1)
+    >>> chainer.append(rhs2, lhs_key=itemgetter(1), rhs_key=itemgetter(0))
+    >>> for left, right1, right2 in chainer.chain():
+    ...     left, list(right1), list(right2)
+    ((0, 'a'), [], [('a', 'x'), ('a', 'y')])
+    ((1, 'b'), [(1, 's')], [('b', 'z')])
+    ((2, 'c'), [(2, 't'), (2, 'u')], [])
+    """
+
+    def __init__(self, lhs: Iterable[Left]):
+        self._lhs = lhs
+        self._chain = []  # type: list
+
+    def append(
+        self,
+        rhs: Iterable[Right],
+        lhs_key: Callable[[Left], Key] = DEFAULT_KEY,
+        rhs_key: Callable[[Right], Key] = DEFAULT_KEY,
+    ) -> None:
+        item = (lhs_key, _UnidirectionalFinder(rhs, rhs_key))
+        self._chain.append(item)
+
+    def chain(self) -> Iterator[Tuple[Left, ...]]:
+        for l in self._lhs:
+            rhs_items = (
+                rhs_finder.find(lhs_key(l))
+                for lhs_key, rhs_finder in self._chain
+            )
+            yield (l, *rhs_items)
+
+
 def relate_one_to_many(
     lhs: Iterable[Left],
     rhs: Iterable[Right],
@@ -243,8 +292,9 @@ def relate_one_to_many(
     ((3, 'd'), [(3, 't'), (3, 'u')])
     ((4, 'e'), [(4, 'w')])
     """
-    rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
-    return ((l, rhs_finder.find(lhs_key(l))) for l in lhs)
+    chainer = OneToManyChainer(lhs)
+    chainer.append(rhs, lhs_key, rhs_key)
+    return chainer.chain()  # type: ignore
 
 
 def left_join(
