@@ -73,6 +73,27 @@ for not only ``relate_one_to_many`` but also API functions.
 ((2, 'a', 't'), [])
 ((3, 'b', 'u'), [(3, 'b', 'x')])
 
+``OneToManyChainer`` helps to relate many ``rhs`` iterables to ``lhs``.
+
+>>> another_rhs = [
+...     ('s', 'f'),
+...     ('t', 'g'),
+...     ('t', 'h'),
+... ]
+>>> from reltools import OneToManyChainer
+>>> chainer = OneToManyChainer(lhs)
+>>> chainer.append(rhs)
+>>> chainer.append(
+...     another_rhs,
+...     lhs_key=operator.itemgetter(2),
+...     rhs_key=operator.itemgetter(0),
+... )
+>>> for left, right, another_right in chainer.chain():
+...     left, list(right), list(another_right)
+((1, 'a', 's'), [(1, 'a', 'v'), (1, 'b', 'w')], [('s', 'f')])
+((2, 'a', 't'), [], [('t', 'g'), ('t', 'h')])
+((3, 'b', 'u'), [(3, 'b', 'x')], [])
+
 Left Outer Join
 ***************
 
@@ -139,6 +160,21 @@ This is because *reltools* supports only sorted data
 and does not prefer random accessing.
 To achieve *many-to-many* relationing, unnormalize data on preproceing and
 use outer joining or inner joining.
+
+Memory Efficiency
+*****************
+
+Almost all processes are evaluated lazily,
+which results in the reduction of memory usage.
+(You can try the efficiency by commands like
+``RELTOOLS_TRY_COUNT=10000000 python -m doctest README.rst``)
+
+>>> import os
+>>> n = int(os.environ.get('RELTOOLS_TRY_COUNT', 1000))
+>>> lhs = ((i, 'left') for i in range(n))
+>>> rhs = ((i, 'right') for i in range(n))
+>>> for left, right in relate_one_to_many(lhs, rhs):
+...     assert len(list(right)) == 1
 
 Development
 -----------
