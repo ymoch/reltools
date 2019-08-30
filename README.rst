@@ -9,6 +9,8 @@ reltools
     :target: https://badge.fury.io/py/reltools
 .. image:: https://img.shields.io/badge/python-3.5+-blue.svg
     :target: https://www.python.org/
+.. image:: https://img.shields.io/lgtm/grade/python/g/ymoch/reltools.svg
+    :target: https://lgtm.com/projects/g/ymoch/reltools/context:python
 
 Relation tools for Python.
 This relates two data (sorted by certain keys) like SQL joining.
