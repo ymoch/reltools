@@ -8,17 +8,16 @@ readme = "README.rst"
 repository = "https://github.com/ymoch/reltools"
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.6"
 more-itertools = "^7.2"
 
 [tool.poetry.dev-dependencies]
-pytest-mypy = "^0.3.3"
-pytest-flakes = "^4.0"
-pytest-cov = "^2.7"
-codecov = "^2.0"
-pytest = "^5.0"
-pytest-runner = "^5.1"
-pytest-codestyle = "^1.4"
+pytest = "^6.2.1"
+pytest-runner = "^5.2"
+pytest-flake8 = "^1.0.7"
+pytest-mypy = "^0.8.0"
+pytest-cov = "^2.10.1"
+codecov = "^2.1.11"
 
 [build-system]
 requires = ["poetry>=0.12"]
