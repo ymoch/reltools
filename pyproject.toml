@@ -19,9 +19,9 @@ pytest-cov = "^2.10.1"
 codecov = "^2.1.11"
 
 [tool.pytest.ini_options]
+testpaths = ['reltools.py', 'README.rst']
 addopts = [
   "--doctest-modules",
-  "--doctest-glob='*.rst'",
   "--flake8",
   "--mypy",
   "--mypy-ignore-missing-imports",
