@@ -1,10 +1,9 @@
 """Relation tools for Python."""
 
+from abc import ABCMeta, abstractmethod
 from itertools import groupby
 from operator import itemgetter
 from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
-
-from more_itertools import peekable
 
 __all__ = [
     'OneToManyChainer',
@@ -15,14 +14,6 @@ __all__ = [
 ]
 
 T = TypeVar('T')
-Key = TypeVar('Key')
-Value = TypeVar('Value')
-Left = TypeVar('Left')
-Right = TypeVar('Right')
-
-_EMPTY_LIST = []  # type: list
-FIRST_ITEM_KEY = itemgetter(0)
-DEFAULT_KEY = FIRST_ITEM_KEY
 
 
 class _Peekable(Generic[T], Iterator[T]):
@@ -95,6 +86,24 @@ class _Peekable(Generic[T], Iterator[T]):
         except StopIteration:
             return False
         return True
+
+
+# HACK: implemented for Python 3.6, may be replaced to use typing.Protocol.
+class _Comparable(metaclass=ABCMeta):
+    """Protocol for annotating comparable types."""
+
+    @abstractmethod
+    def __lt__(self, other) -> bool: ...
+
+
+Key = TypeVar('Key', bound=_Comparable)
+Value = TypeVar('Value')
+Left = TypeVar('Left')
+Right = TypeVar('Right')
+
+_EMPTY_LIST = []  # type: list
+FIRST_ITEM_KEY = itemgetter(0)
+DEFAULT_KEY = FIRST_ITEM_KEY
 
 
 class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
@@ -197,7 +206,7 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
         key: Callable[[Value], Key],
     ) -> None:
         """Initialize"""
-        self._groups = peekable(groupby(iterable, key))
+        self._groups = _Peekable(groupby(iterable, key))
 
     def find(self, key: Key) -> Iterator[Value]:
         """Find items that have the given key."""
@@ -556,5 +565,5 @@ def inner_join(
     []
     """
     left_joined = left_join(lhs, rhs, lhs_key, rhs_key)
-    relations = ((left, peekable(right)) for (left, right) in left_joined)
+    relations = ((left, _Peekable(right)) for (left, right) in left_joined)
     return ((left, right) for (left, right) in relations if right)
