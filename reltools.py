@@ -81,7 +81,7 @@ class _Peekable(Generic[T], Iterator[T]):
 
     def __init__(self, iterable: Iterable[T]):
         self._iterator = iter(iterable)
-        self._current: object = self.__NO_VALUE
+        self._current: object = self.__NO_VALUE  # T or __NO_VALUE
 
     def peek(self) -> T:
         if self._current is self.__NO_VALUE:
@@ -110,6 +110,21 @@ class _Comparable(metaclass=ABCMeta):
 
     @abstractmethod
     def __lt__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __le__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __gt__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __ge__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __eq__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __ne__(self, other) -> bool: ...
 
 
 Key = TypeVar('Key', bound=_Comparable)
