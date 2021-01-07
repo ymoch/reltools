@@ -6,6 +6,13 @@ from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
 
 from more_itertools import peekable
 
+__all__ = [
+    'OneToManyChainer',
+    'relate_one_to_many',
+    'left_join',
+    'outer_join',
+    'inner_join',
+]
 
 Key = TypeVar('Key')
 Value = TypeVar('Value')
