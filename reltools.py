@@ -18,6 +18,8 @@ T = TypeVar('T')
 
 class _Peekable(Generic[T], Iterator[T]):
     """
+    An iterator where the current element can be fetched.
+
     When given an empty iterator, then only stops iteration.
     >>> peekable = _Peekable(iter([]))
     >>> bool(peekable)
@@ -231,6 +233,7 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
     >>> list(finder.find(3))
     [(3, 'd')]
     """
+
     def __init__(
         self,
         iterable: Iterable[Value],
@@ -414,6 +417,7 @@ def relate_one_to_many(
     ((3, 'd'), [(3, 't'), (3, 'u')])
     ((4, 'e'), [(4, 'w')])
     """
+
     chainer = OneToManyChainer(lhs)
     chainer.append(rhs, lhs_key, rhs_key)
     return chainer.chain()  # type: ignore
@@ -465,6 +469,7 @@ def left_join(
     >>> list(relations)
     []
     """
+
     lhs_groups = groupby(lhs, lhs_key)
     relations = relate_one_to_many(lhs_groups, rhs, FIRST_ITEM_KEY, rhs_key)
     return ((left, right) for (_, left), right in relations)
@@ -537,6 +542,7 @@ def outer_join(
     ...     list(left), list(right)
     ([(1, 'a')], [])
     """
+
     lhs_finder = _UnidirectionalFinder(lhs, lhs_key)
     rhs_finder = _UnidirectionalFinder(rhs, rhs_key)
 
@@ -592,6 +598,7 @@ def inner_join(
     >>> list(relations)
     []
     """
+
     left_joined = left_join(lhs, rhs, lhs_key, rhs_key)
     relations = ((left, _Peekable(right)) for left, right in left_joined)
     return ((left, right) for left, right in relations if right)

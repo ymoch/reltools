@@ -1,6 +1,5 @@
 reltools
 ========
-
 .. image:: https://circleci.com/gh/ymoch/reltools.svg?style=svg
     :target: https://circleci.com/gh/ymoch/reltools
 .. image:: https://codecov.io/gh/ymoch/reltools/branch/master/graph/badge.svg
@@ -22,7 +21,6 @@ This feature is for the big data joining without any SQL engines.
 
 Installation
 ------------
-
 Install with `pip <https://pypi.org/project/pip/>`_.
 
 .. code-block:: sh
@@ -34,7 +32,6 @@ Features
 
 One-To-Many
 ***********
-
 *One-to-many* relationing is provided by ``relate_one_to_many``.
 
 Here, input left-hand-side (``lhs``) and right-hand-side (``rhs``)
@@ -98,7 +95,6 @@ for not only ``relate_one_to_many`` but also API functions.
 
 Left Outer Join
 ***************
-
 Left outer joining is provided by ``left_join``.
 While SQL left outer joining returns all the combinations,
 this returns the pair of items.
@@ -116,14 +112,12 @@ Note that the ``right`` can empty, like SQL left joining.
 
 Right Outer Join
 ****************
-
 Right outer joining is not supported
 because it is left-and-right-opposite of left joining.
 Use ``left_join(rhs, lhs, rhs_key, lhs_key)``.
 
 Full Outer Join
 ***************
-
 Full outer joining, which is an original feature of *reltools*,
 is provided by ``outer_join``.
 In contrast to ``left_join``, full outer joining preserve keys
@@ -142,7 +136,6 @@ that are only in ``rhs``.
 
 Inner Join
 **********
-
 Inner joining is provided by ``inner_join``.
 In contrast to ``left_join``, ``right`` cannot be empty,
 like SQL inner joining.
@@ -156,7 +149,6 @@ like SQL inner joining.
 
 Many-To-Many
 ************
-
 SQL-like *many-to-many* relationing using an internal table is not supported.
 This is because *reltools* supports only sorted data
 and does not prefer random accessing.
@@ -165,11 +157,10 @@ use outer joining or inner joining.
 
 Memory Efficiency
 *****************
-
 Almost all processes are evaluated lazily,
 which results in the reduction of memory usage.
 (You can try the efficiency by commands like
-``RELTOOLS_TRY_COUNT=10000000 python -m doctest README.rst``)
+``RELTOOLS_TRY_COUNT=10000000 python3 -m doctest README.rst``)
 
 >>> import os
 >>> n = int(os.environ.get('RELTOOLS_TRY_COUNT', 1000))
@@ -180,7 +171,6 @@ which results in the reduction of memory usage.
 
 Development
 -----------
-
 This project's structure is based on `Poetry <https://poetry.eustace.io/>`_.
 All tests are written with `doctest <https://docs.python.jp/3/library/doctest.html>`_
 and run with `pytest <https://docs.pytest.org/en/latest/>`_.
@@ -198,7 +188,6 @@ For stability, following checks are also run when testing.
 
 License
 -------
-
 .. image:: https://img.shields.io/badge/License-MIT-brightgreen.svg
     :target: https://opensource.org/licenses/MIT
 
