@@ -13,11 +13,21 @@ more-itertools = "^7.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
-pytest-runner = "^5.2"
 pytest-flake8 = "^1.0.7"
 pytest-mypy = "^0.8.0"
 pytest-cov = "^2.10.1"
 codecov = "^2.1.11"
+
+[tool.pytest.ini_options]
+addopts = [
+  "--doctest-modules",
+  "--doctest-glob='*.rst'",
+  "--flake8",
+  "--mypy",
+  "--mypy-ignore-missing-imports",
+  "--cov=reltools",
+  "--cov-report=term-missing",
+]
 
 [build-system]
 requires = ["poetry>=0.12"]
