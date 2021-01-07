@@ -1,10 +1,9 @@
 """Relation tools for Python."""
 
+from abc import ABCMeta, abstractmethod
 from itertools import groupby
 from operator import itemgetter
 from typing import Callable, Generic, Iterable, Iterator, Tuple, TypeVar
-
-from more_itertools import peekable
 
 __all__ = [
     'OneToManyChainer',
@@ -14,12 +13,126 @@ __all__ = [
     'inner_join',
 ]
 
-Key = TypeVar('Key')
+T = TypeVar('T')
+
+
+class _Peekable(Generic[T], Iterator[T]):
+    """
+    When given an empty iterator, then only stops iteration.
+    >>> peekable = _Peekable(iter([]))
+    >>> bool(peekable)
+    False
+    >>> peekable.peek()
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> next(peekable)
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> for item in _Peekable(iter([])):
+    ...     item
+
+    When given a filled iterator, then peeks and iterates it.
+    >>> peekable = _Peekable(iter([1, 2]))
+    >>> bool(peekable)
+    True
+    >>> peekable.peek()
+    1
+    >>> next(peekable)
+    1
+    >>> bool(peekable)
+    True
+    >>> peekable.peek()
+    2
+    >>> next(peekable)
+    2
+    >>> peekable.peek()
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> next(peekable)
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> for item in _Peekable(iter([1, 2])):
+    ...     item
+    1
+    2
+
+    Peeks values as lazyly as possible.
+    >>> iterator = iter([1])
+    >>> _ = _Peekable(iterator)
+    >>> for item in iterator:
+    ...     item
+    1
+    >>> iterator = iter([1, 2])
+    >>> peekable = _Peekable(iterator)
+    >>> peekable.peek()
+    1
+    >>> next(peekable)
+    1
+    >>> for item in iterator:
+    ...     item
+    2
+    """
+
+    __NO_VALUE = object()
+
+    def __init__(self, iterable: Iterable[T]):
+        self._iterator = iter(iterable)
+        self._current: object = self.__NO_VALUE  # T or __NO_VALUE
+
+    def peek(self) -> T:
+        if self._current is self.__NO_VALUE:
+            self._current = next(self._iterator)
+        return self._current  # type: ignore
+
+    def __iter__(self) -> Iterator[T]:
+        return self
+
+    def __next__(self) -> T:
+        current = self.peek()
+        self._current = self.__NO_VALUE
+        return current  # type: ignore
+
+    def __bool__(self) -> bool:
+        try:
+            self.peek()
+        except StopIteration:
+            return False
+        return True
+
+
+# HACK: implemented for Python 3.6, may be replaced to use typing.Protocol.
+class _Comparable(metaclass=ABCMeta):
+    """Protocol for annotating comparable types."""
+
+    @abstractmethod
+    def __lt__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __le__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __gt__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __ge__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __eq__(self, other) -> bool: ...
+
+    @abstractmethod
+    def __ne__(self, other) -> bool: ...
+
+
+Key = TypeVar('Key', bound=_Comparable)
 Value = TypeVar('Value')
 Left = TypeVar('Left')
 Right = TypeVar('Right')
 
-_EMPTY_LIST = []  # type: list
+_EMPTY_ITERABLE: Iterable = tuple()
 FIRST_ITEM_KEY = itemgetter(0)
 DEFAULT_KEY = FIRST_ITEM_KEY
 
@@ -124,18 +237,18 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
         key: Callable[[Value], Key],
     ) -> None:
         """Initialize"""
-        self._groups = peekable(groupby(iterable, key))
+        self._groups = _Peekable(groupby(iterable, key))
 
     def find(self, key: Key) -> Iterator[Value]:
         """Find items that have the given key."""
         self.seek_to(key)
 
         if not self.has_items:
-            return iter(_EMPTY_LIST)
+            return iter(_EMPTY_ITERABLE)
 
         group_key, group_items = self._groups.peek()
         if group_key > key:
-            return iter(_EMPTY_LIST)
+            return iter(_EMPTY_ITERABLE)
 
         next(self)
         return group_items
@@ -197,7 +310,7 @@ class OneToManyChainer(Generic[Left]):
 
     def __init__(self, lhs: Iterable[Left]):
         self._lhs = lhs
-        self._chain = []  # type: list
+        self._chain: list = []
 
     def append(
         self,
@@ -354,7 +467,7 @@ def left_join(
     """
     lhs_groups = groupby(lhs, lhs_key)
     relations = relate_one_to_many(lhs_groups, rhs, FIRST_ITEM_KEY, rhs_key)
-    return ((left, right) for ((_, left), right) in relations)
+    return ((left, right) for (_, left), right in relations)
 
 
 def outer_join(
@@ -429,17 +542,14 @@ def outer_join(
 
     while lhs_finder.has_items:
         if not rhs_finder.has_items:
-            yield next(lhs_finder), iter(_EMPTY_LIST)
+            yield next(lhs_finder), iter(_EMPTY_ITERABLE)
             continue
 
-        key_curr = min(  # type: ignore
-            lhs_finder.current_key(),
-            rhs_finder.current_key(),
-        )
+        key_curr = min(lhs_finder.current_key(), rhs_finder.current_key())
         yield lhs_finder.find(key_curr), rhs_finder.find(key_curr)
 
     while rhs_finder.has_items:
-        yield iter(_EMPTY_LIST), next(rhs_finder)
+        yield iter(_EMPTY_ITERABLE), next(rhs_finder)
 
 
 def inner_join(
@@ -483,5 +593,5 @@ def inner_join(
     []
     """
     left_joined = left_join(lhs, rhs, lhs_key, rhs_key)
-    relations = ((left, peekable(right)) for (left, right) in left_joined)
-    return ((left, right) for (left, right) in relations if right)
+    relations = ((left, _Peekable(right)) for left, right in left_joined)
+    return ((left, right) for left, right in relations if right)
