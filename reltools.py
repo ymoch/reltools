@@ -59,16 +59,32 @@ class _Peekable(Generic[T], Iterator[T]):
     ...     item
     1
     2
+
+    Peeks values as lazyly as possible.
+    >>> iterator = iter([1])
+    >>> _ = _Peekable(iterator)
+    >>> for item in iterator:
+    ...     item
+    1
+    >>> iterator = iter([1, 2])
+    >>> peekable = _Peekable(iterator)
+    >>> peekable.peek()
+    1
+    >>> next(peekable)
+    1
+    >>> for item in iterator:
+    ...     item
+    2
     """
 
-    _NO_VALUE = object()
+    __NO_VALUE = object()
 
     def __init__(self, iterable: Iterable[T]):
         self._iterator = iter(iterable)
-        self._current: object = self._NO_VALUE
+        self._current: object = self.__NO_VALUE
 
     def peek(self) -> T:
-        if self._current is self._NO_VALUE:
+        if self._current is self.__NO_VALUE:
             self._current = next(self._iterator)
         return self._current  # type: ignore
 
@@ -77,7 +93,7 @@ class _Peekable(Generic[T], Iterator[T]):
 
     def __next__(self) -> T:
         current = self.peek()
-        self._current = self._NO_VALUE
+        self._current = self.__NO_VALUE
         return current  # type: ignore
 
     def __bool__(self) -> bool:
