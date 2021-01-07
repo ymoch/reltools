@@ -14,6 +14,7 @@ __all__ = [
     'inner_join',
 ]
 
+T = TypeVar('T')
 Key = TypeVar('Key')
 Value = TypeVar('Value')
 Left = TypeVar('Left')
@@ -22,6 +23,78 @@ Right = TypeVar('Right')
 _EMPTY_LIST = []  # type: list
 FIRST_ITEM_KEY = itemgetter(0)
 DEFAULT_KEY = FIRST_ITEM_KEY
+
+
+class _Peekable(Generic[T], Iterator[T]):
+    """
+    When given an empty iterator, then only stops iteration.
+    >>> peekable = _Peekable(iter([]))
+    >>> bool(peekable)
+    False
+    >>> peekable.peek()
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> next(peekable)
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> for item in _Peekable(iter([])):
+    ...     item
+
+    When given a filled iterator, then peeks and iterates it.
+    >>> peekable = _Peekable(iter([1, 2]))
+    >>> bool(peekable)
+    True
+    >>> peekable.peek()
+    1
+    >>> next(peekable)
+    1
+    >>> bool(peekable)
+    True
+    >>> peekable.peek()
+    2
+    >>> next(peekable)
+    2
+    >>> peekable.peek()
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> next(peekable)
+    Traceback (most recent call last):
+        ...
+    StopIteration
+    >>> for item in _Peekable(iter([1, 2])):
+    ...     item
+    1
+    2
+    """
+
+    _NO_VALUE = object()
+
+    def __init__(self, iterable: Iterable[T]):
+        self._iterator = iter(iterable)
+        self._current: object = self._NO_VALUE
+
+    def peek(self) -> T:
+        if self._current is self._NO_VALUE:
+            self._current = next(self._iterator)
+        return self._current  # type: ignore
+
+    def __iter__(self) -> Iterator[T]:
+        return self
+
+    def __next__(self) -> T:
+        current = self.peek()
+        self._current = self._NO_VALUE
+        return current  # type: ignore
+
+    def __bool__(self) -> bool:
+        try:
+            self.peek()
+        except StopIteration:
+            return False
+        return True
 
 
 class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
