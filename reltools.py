@@ -202,11 +202,14 @@ class OneToManyChainer(Generic[Left]):
         self._chain.append(item)
 
     def chain(self) -> Iterator[Tuple[Left, ...]]:
-        return (self._next(l) for l in self._lhs)
+        return (self._next(item) for item in self._lhs)
 
-    def _next(self, l: Left) -> Tuple[Left, ...]:
-        rs = (r_finder.find(lhs_key(l)) for lhs_key, r_finder in self._chain)
-        return (l, *rs)
+    def _next(self, item: Left) -> Tuple[Left, ...]:
+        rs = (
+            r_finder.find(lhs_key(item))
+            for lhs_key, r_finder in self._chain
+        )
+        return (item, *rs)
 
 
 def relate_one_to_many(
@@ -422,7 +425,10 @@ def outer_join(
             yield next(lhs_finder), iter(_EMPTY_LIST)
             continue
 
-        key_curr = min(lhs_finder.current_key(), rhs_finder.current_key())
+        key_curr = min(  # type: ignore
+            lhs_finder.current_key(),
+            rhs_finder.current_key(),
+        )
         yield lhs_finder.find(key_curr), rhs_finder.find(key_curr)
 
     while rhs_finder.has_items:
