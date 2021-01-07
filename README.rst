@@ -1,13 +1,13 @@
 reltools
 ========
 
-.. image:: https://travis-ci.org/ymoch/reltools.svg?branch=master
-    :target: https://travis-ci.org/ymoch/reltools
+.. image:: https://circleci.com/gh/ymoch/reltools.svg?style=svg
+    :target: https://circleci.com/gh/ymoch/reltools
 .. image:: https://codecov.io/gh/ymoch/reltools/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/ymoch/reltools
 .. image:: https://badge.fury.io/py/reltools.svg
     :target: https://badge.fury.io/py/reltools
-.. image:: https://img.shields.io/badge/python-3.5+-blue.svg
+.. image:: https://img.shields.io/badge/python-3.6+-blue.svg
     :target: https://www.python.org/
 .. image:: https://img.shields.io/lgtm/grade/python/g/ymoch/reltools.svg
     :target: https://lgtm.com/projects/g/ymoch/reltools/context:python
