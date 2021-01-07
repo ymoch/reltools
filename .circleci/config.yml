@@ -1,0 +1,97 @@
+version: 2.1
+
+workflows:
+  version: 2
+  test-and-deploy:
+    jobs:
+      - test-39:
+          filters:
+            tags:
+              only: /.*/
+      - test-38:
+          filters:
+            tags:
+              only: /.*/
+      - test-37:
+          filters:
+            tags:
+              only: /.*/
+      - test-36:
+          filters:
+            tags:
+              only: /.*/
+      - publish:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^[0-9]+(\.[0-9]+)*$/
+          requires:
+            - test-39
+            - test-38
+            - test-37
+            - test-36
+
+jobs:
+  test-39:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - prepare
+      - unit-test
+  test-38:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - checkout
+      - prepare
+      - unit-test
+  test-37:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - prepare
+      - unit-test
+  test-36:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - prepare
+      - unit-test
+  publish:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - prepare
+      - publish
+
+commands:
+  prepare:
+    description: Prepare
+    steps:
+      - run:
+          name: Install Poetry
+          command: >
+            curl -sSL  https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
+            | python
+  unit-test:
+    description: Unit test
+    steps:
+      - run:
+          name: Unit test
+          command: |
+            poetry install
+            poetry run pytest
+      - run:
+          name: Report
+          command: |
+            poetry run codecov
+  publish:
+    name: Publish
+    steps:
+      - run: poetry build
+      - run: poetry publish
