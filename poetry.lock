@@ -130,14 +130,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "more-itertools"
-version = "7.2.0"
-description = "More routines for operating on iterables, beyond itertools"
-category = "main"
-optional = false
-python-versions = ">=3.4"
-
-[[package]]
 name = "mypy"
 version = "0.790"
 description = "Optional static typing for Python"
@@ -355,7 +347,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "a96b1e350dc4e0c4a91ab7ae455143eb66aa86943dc36167c764cad7a498460e"
+content-hash = "9c84688ba08b14a4bbba2a6ea662076c0b7322eab46350ddb88b18f600f5cb2a"
 
 [metadata.files]
 atomicwrites = [
@@ -457,10 +449,6 @@ iniconfig = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
-]
-more-itertools = [
-    {file = "more-itertools-7.2.0.tar.gz", hash = "sha256:409cd48d4db7052af495b09dec721011634af3753ae1ef92d2b32f73a745f832"},
-    {file = "more_itertools-7.2.0-py3-none-any.whl", hash = "sha256:92b8c4b06dac4f0611c0729b2f2ede52b2e1bac1ab48f089c7ddc12e26bb60c4"},
 ]
 mypy = [
     {file = "mypy-0.790-cp35-cp35m-macosx_10_6_x86_64.whl", hash = "sha256:bd03b3cf666bff8d710d633d1c56ab7facbdc204d567715cb3b9f85c6e94f669"},
