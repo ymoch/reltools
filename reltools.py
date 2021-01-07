@@ -101,7 +101,7 @@ Value = TypeVar('Value')
 Left = TypeVar('Left')
 Right = TypeVar('Right')
 
-_EMPTY_LIST = []  # type: list
+_EMPTY_ITERABLE: Iterable = tuple()
 FIRST_ITEM_KEY = itemgetter(0)
 DEFAULT_KEY = FIRST_ITEM_KEY
 
@@ -213,11 +213,11 @@ class _UnidirectionalFinder(Generic[Value, Key], Iterator[Iterator[Value]]):
         self.seek_to(key)
 
         if not self.has_items:
-            return iter(_EMPTY_LIST)
+            return iter(_EMPTY_ITERABLE)
 
         group_key, group_items = self._groups.peek()
         if group_key > key:
-            return iter(_EMPTY_LIST)
+            return iter(_EMPTY_ITERABLE)
 
         next(self)
         return group_items
@@ -279,7 +279,7 @@ class OneToManyChainer(Generic[Left]):
 
     def __init__(self, lhs: Iterable[Left]):
         self._lhs = lhs
-        self._chain = []  # type: list
+        self._chain: list = []
 
     def append(
         self,
@@ -436,7 +436,7 @@ def left_join(
     """
     lhs_groups = groupby(lhs, lhs_key)
     relations = relate_one_to_many(lhs_groups, rhs, FIRST_ITEM_KEY, rhs_key)
-    return ((left, right) for ((_, left), right) in relations)
+    return ((left, right) for (_, left), right in relations)
 
 
 def outer_join(
@@ -511,17 +511,14 @@ def outer_join(
 
     while lhs_finder.has_items:
         if not rhs_finder.has_items:
-            yield next(lhs_finder), iter(_EMPTY_LIST)
+            yield next(lhs_finder), iter(_EMPTY_ITERABLE)
             continue
 
-        key_curr = min(  # type: ignore
-            lhs_finder.current_key(),
-            rhs_finder.current_key(),
-        )
+        key_curr = min(lhs_finder.current_key(), rhs_finder.current_key())
         yield lhs_finder.find(key_curr), rhs_finder.find(key_curr)
 
     while rhs_finder.has_items:
-        yield iter(_EMPTY_LIST), next(rhs_finder)
+        yield iter(_EMPTY_ITERABLE), next(rhs_finder)
 
 
 def inner_join(
@@ -565,5 +562,5 @@ def inner_join(
     []
     """
     left_joined = left_join(lhs, rhs, lhs_key, rhs_key)
-    relations = ((left, _Peekable(right)) for (left, right) in left_joined)
-    return ((left, right) for (left, right) in relations if right)
+    relations = ((left, _Peekable(right)) for left, right in left_joined)
+    return ((left, right) for left, right in relations if right)
