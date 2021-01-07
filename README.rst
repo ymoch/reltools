@@ -192,9 +192,9 @@ and run with `pytest <https://docs.pytest.org/en/latest/>`_.
 
 For stability, following checks are also run when testing.
 
-- `pep8 <https://pep8.readthedocs.io/en/release-1.7.x/>`_
 - `pyflakes <https://github.com/PyCQA/pyflakes>`_
 - `pycodestyle <https://pycodestyle.readthedocs.io/en/latest/>`_
+- `mypy <https://mypy.readthedocs.io/en/stable/index.html>`_
 
 License
 -------
